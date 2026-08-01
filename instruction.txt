@@ -1,0 +1,210 @@
+===============================================================================
+                       TWINLIFE AI — STEP-BY-STEP INSTRUCTIONS
+===============================================================================
+
+Welcome to TwinLife AI! This document provides a complete, step-by-step guide
+for setting up, running, testing, and understanding the entire project from scratch.
+
+-------------------------------------------------------------------------------
+TABLE OF CONTENTS
+-------------------------------------------------------------------------------
+1. Prerequisites & Environment Setup
+2. Obtaining and Setting Your Free Gemini API Key
+3. Project Architecture & Modules Overview
+4. Step-by-Step Command Execution Guide
+   - Step 4.1: Run Module 1 (Formula Unit Tests)
+   - Step 4.2: Train Module 2 (Health ML Models)
+   - Step 4.3: Test Module 3 (Digital Twin Classes)
+   - Step 4.4: Run Module 4 (Autonomous Combined Simulator Agent)
+5. Summary of What Was Discussed & Resolved
+6. Troubleshooting & Common Pitfalls
+
+-------------------------------------------------------------------------------
+1. PREREQUISITES & ENVIRONMENT SETUP
+-------------------------------------------------------------------------------
+• Python Version: Python 3.12 or higher (Anaconda / Miniconda recommended)
+• Git: Installed on your system
+
+Step 1.1: Clone the repository and navigate into the folder:
+    git clone https://github.com/Vajra-Chaitanya/Twin-Life.git
+    cd Twin-Life
+
+Step 1.2: (Optional but recommended) Create and activate a virtual environment:
+    # Using Conda:
+    conda create -n twin_life python=3.12 -y
+    conda activate twin_life
+
+    # Or using standard venv:
+    python -m venv venv
+    # Windows: venv\Scripts\activate
+    # Linux/Mac: source venv/bin/activate
+
+Step 1.3: Install all required project dependencies:
+    pip install -r requirements.txt
+
+    Key dependencies installed:
+    - numpy, pandas, scipy (Core numeric data processing)
+    - scikit-learn, joblib (Machine Learning training & model serialization)
+    - shap, numba, llvmlite, matplotlib (SHAP model explainability)
+    - google-genai, python-dotenv (Google Gemini API SDK & environment loader)
+    - pytest (Unit test runner)
+
+-------------------------------------------------------------------------------
+2. OBTAINING AND SETTING YOUR FREE GEMINI API KEY
+-------------------------------------------------------------------------------
+Module 4 uses Google Gemini API (free tier) for the autonomous tool-use agent.
+
+Step 2.1: Get a free API Key:
+    1. Visit: https://aistudio.google.com/apikey
+    2. Sign in with your Google account.
+    3. Click "Create API Key".
+    4. Copy the generated key (starts with AIzaSy...).
+
+Step 2.2: Configure your .env file:
+    Open the `.env` file in the project root directory and paste your key:
+    
+    GEMINI_API_KEY=AIzaSy...your_key_here...
+
+    (Note: The `.env` file is included in `.gitignore` so your secret key is never
+     accidentally committed to version control.)
+
+-------------------------------------------------------------------------------
+3. PROJECT ARCHITECTURE & MODULES OVERVIEW
+-------------------------------------------------------------------------------
+• Module 1: `formulas.py` & `test_formulas.py`
+  Pure, deterministic domain functions for Health (BMI, WHO Obesity, BP Staging,
+  Framingham 10-Yr Risk, Glucose Indicator), Finance (DTI, Savings Rate, Emergency
+  Fund, Stability Score, Affordability Score), and Insurance (Coverage Ratio,
+  Premium Affordability, Insurance Score).
+
+• Module 2: `train_cardio_model.py` & `train_diabetes_model.py`
+  Trained Machine Learning models using RandomForestClassifier:
+  - Cardio Model: Cleans `data/cardio_train.csv` (70k rows), converts age from
+    days to years, filters valid blood pressure ranges (ap_hi > ap_lo).
+    Saves to `models/cardio_model.pkl`.
+  - Diabetes Model: Cleans `data/diabetes_prediction_dataset.csv` (100k rows),
+    removes exact duplicates, applies one-hot encoding, uses class balancing.
+    Saves to `models/diabetes_model.pkl` & `models/diabetes_feature_cols.pkl`.
+
+• Module 3: `health_twin.py`, `finance_twin.py`, `insurance_twin.py`
+  - HealthTwin: Combines both ML models + SHAP explanations + Module 1 formulas
+    to output an overall health score (0-100).
+  - FinanceTwin: Pure formula-based evaluation of DTI, emergency fund, and disposable income.
+  - InsuranceTwin: Rule-based future medical cost estimation and rider gap analysis.
+
+• Module 4: `combined_simulator.py` & `test_combined_simulator.py`
+  Autonomous treatment-plan advisor agent powered by Google Gemini API.
+  - Registers 4 deterministic Python tools (check_affordability, check_insurance_coverage,
+    get_cheaper_alternative, get_health_context).
+  - Uses an LLM reasoning loop to call tools in whatever order necessary to find the
+    optimal treatment funding strategy while logging an explainable tool trace.
+
+-------------------------------------------------------------------------------
+4. STEP-BY-STEP COMMAND EXECUTION GUIDE
+-------------------------------------------------------------------------------
+
+Step 4.1: Run Module 1 Unit Tests
+    Verify that all pure formula calculations work properly:
+    
+    python -m pytest test_formulas.py
+
+    Expected Output: 70 passed in ~0.2s
+
+-------------------------------------------------------------------------------
+Step 4.2: Train the Health Machine Learning Models (Module 2)
+    Train both independent Random Forest classifiers and verify benchmark metrics:
+
+    # Train Cardiovascular Disease Model
+    python train_cardio_model.py
+    
+    Expected output:
+      Accuracy : ~73.6%
+      F1-score : ~72.0%
+      ROC-AUC  : ~80.3%
+      Model saved to models/cardio_model.pkl
+
+    # Train Diabetes Prediction Model
+    python train_diabetes_model.py
+
+    Expected output:
+      Accuracy : ~90.2%
+      F1-score : ~61.7%
+      ROC-AUC  : ~97.5%
+      Model saved to models/diabetes_model.pkl
+
+-------------------------------------------------------------------------------
+Step 4.3: Execute Standalone Digital Twin Assessments (Module 3)
+    Verify each Digital Twin independently using hardcoded test cases:
+
+    # Run Health Twin assessment (ML models + SHAP + Formulas)
+    python health_twin.py
+
+    # Run Finance Twin assessment (Formula-based financial health)
+    python finance_twin.py
+
+    # Run Insurance Twin assessment (Medical cost estimation & rider gaps)
+    python insurance_twin.py
+
+-------------------------------------------------------------------------------
+Step 4.4: Run the Autonomous Agent Combined Simulator (Module 4)
+    Evaluate treatment plans across 5 varied patient scenarios:
+
+    python test_combined_simulator.py
+
+    What happens during execution:
+    1. Loads health, finance, and insurance profiles for each test scenario.
+    2. Launches the Gemini agent loop (`gemini-3.5-flash-lite` or `gemini-3.5-flash`).
+    3. The agent autonomously invokes tools to check affordability, insurance,
+       cheaper alternatives, and clinical urgency.
+    4. Prints the full step-by-step tool call trace and final recommendation.
+
+-------------------------------------------------------------------------------
+5. SUMMARY OF WHAT WAS DISCUSSED & RESOLVED IN DEVELOPMENT
+-------------------------------------------------------------------------------
+1. Independent ML Models vs Combined Model:
+   - Evaluated patient populations for Cardio and Diabetes datasets. Confirmed they have
+     no shared patient IDs and different feature sets.
+   - Built two completely separate training pipelines (`train_cardio_model.py` and
+     `train_diabetes_model.py`) rather than forcing a combined model.
+
+2. NumPy 2.x Binary Compatibility:
+   - Encountered binary incompatibility when using compiled libraries like `numba`,
+     `llvmlite`, and `matplotlib` alongside NumPy 2.x.
+   - Solved by upgrading packages (`numba>=0.66.0`, `llvmlite>=0.48.0`, `google-genai>=2.16.0`)
+     so SHAP explanations and Gemini API calls work seamlessly without C-extension crashes.
+
+3. Switching from Paid Claude API to Free Google Gemini API:
+   - Replaced Claude API dependency with Google Gemini API (`google-genai` SDK).
+   - Preserved exact 4-tool function calling contract and autonomous reasoning loop.
+
+4. Gemini Free Tier Quota & Model Fallback:
+   - Managed rate limit limits (`RESOURCE_EXHAUSTED` / HTTP 429).
+   - Added automatic retry with exponential backoff in `combined_simulator.py` (30s, 60s, 90s).
+   - Set up dynamic fallback to models with active free quota (e.g. `gemini-3.5-flash-lite`).
+
+5. Overall Health Score Breakdown:
+   - Clarified the 5-component weighted composite health score calculation in `HealthTwin`:
+     * BMI Score (25% weight)
+     * Blood Pressure Staging (25% weight)
+     * Cardiovascular Risk Probability (25% weight)
+     * Diabetes Risk Probability (15% weight)
+     * Framingham 10-Year Risk (10% weight)
+
+-------------------------------------------------------------------------------
+6. TROUBLESHOOTING & COMMON PITFALLS
+-------------------------------------------------------------------------------
+Q: I get "429 RESOURCE_EXHAUSTED" when running `test_combined_simulator.py`.
+A: You hit the free tier per-minute or daily quota for a specific Gemini model.
+   - Wait 1-2 minutes for the per-minute quota to reset.
+   - Or change the model in `combined_simulator.py` (line 178) to `gemini-3.5-flash-lite` or `gemini-3.5-flash`.
+
+Q: I get "GEMINI_API_KEY environment variable not set".
+A: Ensure your `.env` file exists in the root project directory and contains:
+   `GEMINI_API_KEY=AIzaSy...`
+
+Q: Why are SHAP explanations empty?
+A: Ensure `numba` and `llvmlite` are properly upgraded (`pip install --upgrade numba llvmlite`).
+
+===============================================================================
+                 Happy Coding & Exploring TwinLife AI!
+===============================================================================
