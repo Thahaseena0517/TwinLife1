@@ -1,0 +1,59 @@
+# ============================================================
+# TwinLife AI — Python Dependencies
+# ============================================================
+# Install:  pip install -r requirements.txt
+# Python:   3.12+
+# ============================================================
+
+# --- Core / Numeric ---
+numpy>=2.0.0
+pandas>=2.2.0
+scipy>=1.13.0
+
+# --- Machine Learning ---
+scikit-learn>=1.5.0
+joblib>=1.4.0
+
+# --- Explainability (SHAP) ---
+shap>=0.52.0
+numba>=0.60.0
+llvmlite>=0.43.0
+matplotlib>=3.9.0         # required by shap for summary plots
+
+# --- LLM (Gemini API -- free tier) ---
+google-genai>=2.16.0
+
+# --- Testing ---
+pytest>=7.4.0
+
+# ============================================================
+# FUTURE MODULES (not yet used — uncomment when needed)
+# ============================================================
+
+# --- Module 4: Combined Simulator (Claude API tool-use agent) ---
+# (anthropic already listed above in active deps)
+
+# --- Module 5: RAG Pipeline ---
+# langchain>=0.2.0
+# langchain-community>=0.2.0
+# chromadb>=0.5.0
+# sentence-transformers>=3.0.0
+
+# --- Module 6: Orchestrator ---
+# langgraph>=0.1.0
+
+# --- Module 8: Monitoring Agent ---
+# apscheduler>=3.10.0
+
+# --- Module 10: Backend API ---
+# fastapi>=0.110.0
+# uvicorn>=0.30.0
+# sqlalchemy>=2.0.0
+# psycopg2-binary>=2.9.0
+# pydantic>=2.7.0
+
+# --- Module 11: Frontend (managed by npm, not pip) ---
+# React + Vite + Tailwind + Recharts → see frontend/package.json
+
+# --- Daily-Use Layer ---
+# twilio>=9.0.0            # WhatsApp API
