@@ -1,0 +1,58 @@
+CARDIOVASCULAR DISEASE PREVENTION AND MANAGEMENT GUIDELINES
+(Adapted from AHA/ACC 2019 Primary Prevention Guidelines)
+
+1. BLOOD PRESSURE MANAGEMENT
+According to the ACC/AHA 2017 Blood Pressure Guidelines, blood pressure is classified into four stages:
+- Normal: Systolic < 120 mmHg AND Diastolic < 80 mmHg
+- Elevated: Systolic 120-129 mmHg AND Diastolic < 80 mmHg
+- Hypertension Stage 1: Systolic 130-139 mmHg OR Diastolic 80-89 mmHg
+- Hypertension Stage 2: Systolic >= 140 mmHg OR Diastolic >= 90 mmHg
+
+For patients with Elevated blood pressure, lifestyle modifications are recommended including dietary sodium reduction, increased physical activity, and weight management. No pharmacological treatment is typically needed at this stage.
+
+For Hypertension Stage 1, if the 10-year cardiovascular risk (ASCVD) exceeds 10%, antihypertensive medication should be initiated alongside lifestyle changes. Target blood pressure should be below 130/80 mmHg.
+
+For Hypertension Stage 2, antihypertensive medication is recommended regardless of ASCVD risk score. Combination therapy (two drugs from different classes) may be needed.
+
+2. CHOLESTEROL MANAGEMENT
+Total cholesterol levels are classified as:
+- Desirable: < 200 mg/dL
+- Borderline High: 200-239 mg/dL
+- High: >= 240 mg/dL
+
+Statin therapy is recommended for patients with:
+- Clinical atherosclerotic cardiovascular disease (ASCVD)
+- LDL cholesterol >= 190 mg/dL
+- Diabetes aged 40-75 with LDL >= 70 mg/dL
+- 10-year ASCVD risk >= 7.5% for ages 40-75
+
+Lifestyle modifications including a heart-healthy diet (Mediterranean or DASH pattern), regular aerobic exercise (150 minutes/week moderate or 75 minutes/week vigorous), weight management, and smoking cessation should accompany all pharmacological interventions.
+
+3. FRAMINGHAM RISK SCORE INTERPRETATION
+The Framingham Risk Score estimates 10-year cardiovascular disease risk:
+- Low Risk: < 10% (lifestyle modifications sufficient)
+- Intermediate Risk: 10-20% (consider statin therapy, intensive lifestyle changes)
+- High Risk: > 20% (statin therapy recommended, aggressive risk factor management)
+
+Risk factors included in the score: age, gender, total cholesterol, HDL cholesterol, systolic blood pressure, blood pressure treatment status, smoking status, and diabetes status.
+
+4. LIFESTYLE RECOMMENDATIONS FOR HEART HEALTH
+Physical Activity: At least 150 minutes per week of moderate-intensity aerobic activity or 75 minutes of vigorous activity, supplemented with muscle-strengthening activities 2 or more days per week.
+
+Diet: Emphasis on vegetables, fruits, legumes, nuts, whole grains, and fish. Limit sodium intake to less than 2,300 mg/day (ideally < 1,500 mg/day for hypertension). Minimize added sugars and saturated fats.
+
+Weight Management: Maintain BMI between 18.5-24.9 kg/m². Waist circumference should be < 102 cm for men and < 88 cm for women.
+
+Smoking Cessation: Smoking is a major modifiable risk factor for cardiovascular disease. Cessation reduces cardiovascular risk by 50% within one year and approaches non-smoker risk levels within 5-15 years.
+
+Alcohol: If consumed, limit to 1 drink/day for women and 2 drinks/day for men. Excessive alcohol increases blood pressure and cardiovascular risk.
+
+5. WARNING SIGNS REQUIRING IMMEDIATE MEDICAL ATTENTION
+- Chest pain, pressure, or discomfort lasting more than a few minutes
+- Pain or discomfort in the jaw, neck, back, arms, or shoulders
+- Shortness of breath with or without chest discomfort
+- Breaking out in a cold sweat, nausea, or lightheadedness
+- Sudden numbness or weakness in face, arm, or leg
+- Sudden confusion, trouble speaking, or understanding speech
+
+Source: American Heart Association (AHA), American College of Cardiology (ACC). Guidelines for Primary Prevention of Cardiovascular Disease, 2019.

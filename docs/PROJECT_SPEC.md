@@ -168,7 +168,7 @@ Also implement individual what-if simulators:
   ["coverage","premium","claim"] -> insurance only;
   ["treatment","medication","surgery"] + any cost/money word -> all three,
   triggers combined_simulator
-  STEP 2 (LLM fallback for anything ambiguous): call Claude API with a
+  STEP 2 (LLM fallback for anything ambiguous): call Gemini API with a
   system prompt instructing it to respond ONLY with JSON:
   {"twins": [...], "mode": "single-domain"|"cross-domain", "simulate": bool}
 - Wire the graph so only the twins flagged by routing actually execute

@@ -3,6 +3,7 @@
 # ============================================================
 # Install:  pip install -r requirements.txt
 # Python:   3.12+
+# Conda:    conda activate twin_life
 # ============================================================
 
 # --- Core / Numeric ---
@@ -22,28 +23,27 @@ matplotlib>=3.9.0         # required by shap for summary plots
 
 # --- LLM (Gemini API -- free tier) ---
 google-genai>=2.16.0
+python-dotenv>=1.0.0          # .env file loading
 
 # --- Testing ---
 pytest>=7.4.0
 
+# --- Module 5: RAG Pipeline ---
+langchain>=0.2.0
+langchain-community>=0.2.0
+langchain-huggingface>=0.1.0
+chromadb>=0.5.0
+sentence-transformers>=3.0.0
+
+# --- Module 6: Orchestrator ---
+langgraph>=0.1.0
+
+# --- Module 8: Monitoring Agent ---
+apscheduler>=3.10.0
+
 # ============================================================
 # FUTURE MODULES (not yet used — uncomment when needed)
 # ============================================================
-
-# --- Module 4: Combined Simulator (Claude API tool-use agent) ---
-# (anthropic already listed above in active deps)
-
-# --- Module 5: RAG Pipeline ---
-# langchain>=0.2.0
-# langchain-community>=0.2.0
-# chromadb>=0.5.0
-# sentence-transformers>=3.0.0
-
-# --- Module 6: Orchestrator ---
-# langgraph>=0.1.0
-
-# --- Module 8: Monitoring Agent ---
-# apscheduler>=3.10.0
 
 # --- Module 10: Backend API ---
 # fastapi>=0.110.0

@@ -16,25 +16,29 @@ TABLE OF CONTENTS
    - Step 4.2: Train Module 2 (Health ML Models)
    - Step 4.3: Test Module 3 (Digital Twin Classes)
    - Step 4.4: Run Module 4 (Autonomous Combined Simulator Agent)
+   - Step 4.5: Build & Query Module 5 (RAG Pipeline)
+   - Step 4.6: Test Module 6 (Orchestrator Routing)
+   - Step 4.7: Test Module 7 (Narration Agent)
+   - Step 4.8: Test Module 8 (Monitoring Agent)
+   - Step 4.9: Test Module 9 (Recommendation Engines)
 5. Summary of What Was Discussed & Resolved
 6. Troubleshooting & Common Pitfalls
 
 -------------------------------------------------------------------------------
 1. PREREQUISITES & ENVIRONMENT SETUP
 -------------------------------------------------------------------------------
-• Python Version: Python 3.12 or higher (Anaconda / Miniconda recommended)
-• Git: Installed on your system
+* Python Version: Python 3.12 or higher (Anaconda / Miniconda recommended)
+* Git: Installed on your system
 
 Step 1.1: Clone the repository and navigate into the folder:
     git clone https://github.com/Vajra-Chaitanya/Twin-Life.git
     cd Twin-Life
 
-Step 1.2: (Optional but recommended) Create and activate a virtual environment:
-    # Using Conda:
+Step 1.2: Create and activate the conda environment:
     conda create -n twin_life python=3.12 -y
     conda activate twin_life
 
-    # Or using standard venv:
+    (Alternative using standard venv):
     python -m venv venv
     # Windows: venv\Scripts\activate
     # Linux/Mac: source venv/bin/activate
@@ -47,18 +51,24 @@ Step 1.3: Install all required project dependencies:
     - scikit-learn, joblib (Machine Learning training & model serialization)
     - shap, numba, llvmlite, matplotlib (SHAP model explainability)
     - google-genai, python-dotenv (Google Gemini API SDK & environment loader)
+    - langchain, langchain-community, langchain-huggingface (Text chunking & embeddings)
+    - chromadb (Vector database for RAG retrieval)
+    - sentence-transformers (all-MiniLM-L6-v2 embedding model)
+    - langgraph (State-graph orchestrator framework)
+    - apscheduler (Background job scheduling for monitoring)
     - pytest (Unit test runner)
 
 -------------------------------------------------------------------------------
 2. OBTAINING AND SETTING YOUR FREE GEMINI API KEY
 -------------------------------------------------------------------------------
-Module 4 uses Google Gemini API (free tier) for the autonomous tool-use agent.
+Modules 4, 6, and 7 use Google Gemini API (free tier) for autonomous tool-use
+and narration.
 
 Step 2.1: Get a free API Key:
     1. Visit: https://aistudio.google.com/apikey
     2. Sign in with your Google account.
     3. Click "Create API Key".
-    4. Copy the generated key (starts with AIzaSy...).
+    4. Copy the generated key (starts with AIzaSy... or similar).
 
 Step 2.2: Configure your .env file:
     Open the `.env` file in the project root directory and paste your key:
@@ -71,13 +81,14 @@ Step 2.2: Configure your .env file:
 -------------------------------------------------------------------------------
 3. PROJECT ARCHITECTURE & MODULES OVERVIEW
 -------------------------------------------------------------------------------
-• Module 1: `formulas.py` & `test_formulas.py`
+
+* Module 1: `formulas.py` & `test_formulas.py`
   Pure, deterministic domain functions for Health (BMI, WHO Obesity, BP Staging,
   Framingham 10-Yr Risk, Glucose Indicator), Finance (DTI, Savings Rate, Emergency
   Fund, Stability Score, Affordability Score), and Insurance (Coverage Ratio,
   Premium Affordability, Insurance Score).
 
-• Module 2: `train_cardio_model.py` & `train_diabetes_model.py`
+* Module 2: `train_cardio_model.py` & `train_diabetes_model.py`
   Trained Machine Learning models using RandomForestClassifier:
   - Cardio Model: Cleans `data/cardio_train.csv` (70k rows), converts age from
     days to years, filters valid blood pressure ranges (ap_hi > ap_lo).
@@ -86,22 +97,59 @@ Step 2.2: Configure your .env file:
     removes exact duplicates, applies one-hot encoding, uses class balancing.
     Saves to `models/diabetes_model.pkl` & `models/diabetes_feature_cols.pkl`.
 
-• Module 3: `health_twin.py`, `finance_twin.py`, `insurance_twin.py`
+* Module 3: `health_twin.py`, `finance_twin.py`, `insurance_twin.py`
   - HealthTwin: Combines both ML models + SHAP explanations + Module 1 formulas
     to output an overall health score (0-100).
-  - FinanceTwin: Pure formula-based evaluation of DTI, emergency fund, and disposable income.
+  - FinanceTwin: Pure formula-based evaluation of DTI, emergency fund, and
+    disposable income.
   - InsuranceTwin: Rule-based future medical cost estimation and rider gap analysis.
 
-• Module 4: `combined_simulator.py` & `test_combined_simulator.py`
+* Module 4: `combined_simulator.py` & `test_combined_simulator.py`
   Autonomous treatment-plan advisor agent powered by Google Gemini API.
-  - Registers 4 deterministic Python tools (check_affordability, check_insurance_coverage,
-    get_cheaper_alternative, get_health_context).
-  - Uses an LLM reasoning loop to call tools in whatever order necessary to find the
-    optimal treatment funding strategy while logging an explainable tool trace.
+  - Registers 4 deterministic Python tools (check_affordability,
+    check_insurance_coverage, get_cheaper_alternative, get_health_context).
+  - Uses an LLM reasoning loop to call tools in whatever order necessary to find
+    the optimal treatment funding strategy while logging an explainable tool trace.
+
+* Module 5: `rag_agent.py` & `data/guidelines/` (5 guideline documents)
+  RAG (Retrieval-Augmented Generation) pipeline:
+  - Chunks 5 guideline documents (~500 tokens/chunk) using LangChain's
+    RecursiveCharacterTextSplitter.
+  - Embeds with sentence-transformers/all-MiniLM-L6-v2 (runs locally, free).
+  - Stores in ChromaDB persistent collection (`data/chroma_db/`).
+  - Retrieves top-k semantically relevant chunks for any query.
+
+* Module 6: `orchestrator.py` (LangGraph state-graph)
+  - Two-step routing: (1) keyword matching, (2) LLM fallback for ambiguous queries.
+  - LangGraph conditional graph: route -> health -> finance -> insurance -> rag ->
+    simulate -> narrate -> END.
+  - Only the twins flagged by routing actually execute (efficient).
+
+* Module 7: `narration_agent.py`
+  - generate_explanation(): Calls Gemini API to produce warm, plain-language
+    explanations combining scores, SHAP features, and RAG guideline citations.
+  - generate_ranked_whatifs(): Ranks what-if scenarios by risk reduction, cost,
+    and insurance fit, then narrates trade-offs.
+
+* Module 8: `monitoring_agent.py` (APScheduler)
+  - Scheduled weekly profile checks comparing against saved snapshots.
+  - Threshold alerts: health score drop >10, DTI >0.40, savings rate <10%,
+    insurance score drop >15, new rider gaps.
+  - File-based persistence in `data/snapshots/` and `data/notifications/`.
+
+* Module 9: `recommendation_engines.py`
+  - investment_recommendation(): Age/stability-based tier logic (emergency fund
+    first, growth, balanced, conservative, no-invest).
+  - purchase_impact_simulator(): DTI impact analysis with ranked alternatives
+    (defer, cheaper, EMI, reallocate).
+  - lifestyle_impact_simulator(): Health score projections for habit changes
+    (quit smoking, weight loss, exercise, diet) with substitute/moderate/offset.
 
 -------------------------------------------------------------------------------
 4. STEP-BY-STEP COMMAND EXECUTION GUIDE
 -------------------------------------------------------------------------------
+IMPORTANT: Always activate the conda environment first:
+    conda activate twin_life
 
 Step 4.1: Run Module 1 Unit Tests
     Verify that all pure formula calculations work properly:
@@ -153,57 +201,173 @@ Step 4.4: Run the Autonomous Agent Combined Simulator (Module 4)
 
     What happens during execution:
     1. Loads health, finance, and insurance profiles for each test scenario.
-    2. Launches the Gemini agent loop (`gemini-3.5-flash-lite` or `gemini-3.5-flash`).
+    2. Launches the Gemini agent loop (gemini-3.5-flash-lite).
     3. The agent autonomously invokes tools to check affordability, insurance,
        cheaper alternatives, and clinical urgency.
     4. Prints the full step-by-step tool call trace and final recommendation.
 
 -------------------------------------------------------------------------------
+Step 4.5: Build & Query the RAG Pipeline (Module 5)
+    Index guideline documents and test semantic retrieval:
+
+    python rag_agent.py
+
+    What happens:
+    1. Downloads the sentence-transformers/all-MiniLM-L6-v2 model (first run only).
+    2. Chunks 5 guideline documents into ~14 chunks.
+    3. Embeds and stores chunks in ChromaDB (data/chroma_db/).
+    4. Runs 5 test queries and shows top-2 retrieved chunks with scores.
+
+    Expected retrieval accuracy:
+    - "blood pressure" -> cardiovascular_guidelines.txt
+    - "diabetes HbA1c" -> diabetes_management_guidelines.txt
+    - "savings rate" -> financial_planning_guidelines.txt
+    - "insurance riders" -> insurance_planning_guidelines.txt
+    - "BMI obesity" -> general_wellness_guidelines.txt
+
+-------------------------------------------------------------------------------
+Step 4.6: Test Orchestrator Routing (Module 6)
+    Verify keyword-based and LLM-fallback query routing:
+
+    python orchestrator.py
+
+    Expected routing results:
+    - "blood pressure" -> health (single-domain)
+    - "afford heart surgery" -> health+finance+insurance (cross-domain, simulate)
+    - "insurance coverage" -> insurance (single-domain)
+    - "saving money" -> finance (single-domain)
+    - "treatment for diabetes Rs.300000" -> all three (cross-domain, simulate)
+
+-------------------------------------------------------------------------------
+Step 4.7: Test the Narration Agent (Module 7)
+    Generate AI-narrated explanations and what-if comparisons:
+
+    python narration_agent.py
+
+    What happens:
+    1. Generates a personalized health+finance explanation using sample data.
+    2. Ranks 3 what-if scenarios (quit smoking, weight loss, medication) and
+       narrates trade-offs with citations and disclaimers.
+
+    Note: Requires GEMINI_API_KEY in .env file.
+
+-------------------------------------------------------------------------------
+Step 4.8: Test the Monitoring Agent (Module 8)
+    Run threshold-based monitoring checks:
+
+    python monitoring_agent.py
+
+    What happens:
+    1. First check: Records baseline snapshot (1 info alert).
+    2. Second check: Same inputs, no threshold crossings (0 alerts).
+    3. Third check: Worsened finances (increased EMIs), detects DTI breach
+       (1 warning alert).
+    4. Displays all notifications from the session.
+
+    Output files created:
+    - data/snapshots/test_user_001_latest.json (latest snapshot)
+    - data/notifications/test_user_001_notifications.jsonl (alert log)
+
+-------------------------------------------------------------------------------
+Step 4.9: Test Recommendation Engines (Module 9)
+    Run all three recommendation engines with sample data:
+
+    python recommendation_engines.py
+
+    What happens:
+    1. Investment Recommendation: Tests 3 profiles (young high-earner -> growth,
+       mid-career -> conservative, financially stressed -> emergency fund first).
+    2. Purchase Impact Simulator: Tests 3 cost levels (Rs.1L, Rs.5L, Rs.15L)
+       with ranked alternatives (defer, cheaper, EMI, reallocate).
+    3. Lifestyle Impact Simulator: Tests positive changes (quit smoking + weight
+       loss + diet) and negative changes (start smoking + stop exercise) with
+       projected score changes and alternatives.
+
+    Note: Set PYTHONIOENCODING=utf-8 if unicode characters don't display:
+    $env:PYTHONIOENCODING="utf-8"; python recommendation_engines.py
+
+-------------------------------------------------------------------------------
 5. SUMMARY OF WHAT WAS DISCUSSED & RESOLVED IN DEVELOPMENT
 -------------------------------------------------------------------------------
 1. Independent ML Models vs Combined Model:
-   - Evaluated patient populations for Cardio and Diabetes datasets. Confirmed they have
-     no shared patient IDs and different feature sets.
-   - Built two completely separate training pipelines (`train_cardio_model.py` and
-     `train_diabetes_model.py`) rather than forcing a combined model.
+   - Evaluated patient populations for Cardio and Diabetes datasets. Confirmed they
+     have no shared patient IDs and different feature sets.
+   - Built two completely separate training pipelines rather than forcing a combined
+     model.
 
 2. NumPy 2.x Binary Compatibility:
-   - Encountered binary incompatibility when using compiled libraries like `numba`,
-     `llvmlite`, and `matplotlib` alongside NumPy 2.x.
-   - Solved by upgrading packages (`numba>=0.66.0`, `llvmlite>=0.48.0`, `google-genai>=2.16.0`)
-     so SHAP explanations and Gemini API calls work seamlessly without C-extension crashes.
+   - Encountered binary incompatibility with numba, llvmlite, matplotlib.
+   - Solved by upgrading packages so SHAP explanations and Gemini API calls work
+     seamlessly.
 
 3. Switching from Paid Claude API to Free Google Gemini API:
-   - Replaced Claude API dependency with Google Gemini API (`google-genai` SDK).
+   - Replaced Claude API dependency with Google Gemini API (google-genai SDK).
    - Preserved exact 4-tool function calling contract and autonomous reasoning loop.
+   - Model: gemini-3.5-flash-lite (free tier).
 
 4. Gemini Free Tier Quota & Model Fallback:
-   - Managed rate limit limits (`RESOURCE_EXHAUSTED` / HTTP 429).
-   - Added automatic retry with exponential backoff in `combined_simulator.py` (30s, 60s, 90s).
-   - Set up dynamic fallback to models with active free quota (e.g. `gemini-3.5-flash-lite`).
+   - Managed rate limits (RESOURCE_EXHAUSTED / HTTP 429).
+   - Added automatic retry with exponential backoff (30s, 60s, 90s).
 
 5. Overall Health Score Breakdown:
-   - Clarified the 5-component weighted composite health score calculation in `HealthTwin`:
-     * BMI Score (25% weight)
-     * Blood Pressure Staging (25% weight)
-     * Cardiovascular Risk Probability (25% weight)
-     * Diabetes Risk Probability (15% weight)
-     * Framingham 10-Year Risk (10% weight)
+   - 5-component weighted composite: BMI (25%), BP (25%), Cardio Risk (25%),
+     Diabetes Risk (15%), Framingham 10-Year Risk (10%).
+
+6. RAG Pipeline Design:
+   - Created 5 authoritative guideline documents covering cardiovascular, diabetes,
+     financial planning, insurance, and general wellness topics.
+   - Used sentence-transformers/all-MiniLM-L6-v2 for local embeddings (no API key
+     needed, runs on CPU).
+   - ChromaDB with persistent storage for vector indexing.
+
+7. LangGraph Orchestrator Routing:
+   - Two-step routing avoids unnecessary API calls for clear queries.
+   - Conditional graph edges ensure only relevant twins execute.
+
+8. Monitoring Agent Thresholds:
+   - File-based snapshot persistence for academic simplicity (no database needed).
+   - Configurable thresholds for health score drops, DTI breaches, savings rate
+     minimums, and rider gap detection.
+
+9. Recommendation Engine Design:
+   - Investment recommendations follow age-based allocation with emergency fund
+     priority check.
+   - Purchase impact simulator generates 4 ranked alternatives when affordability
+     is strained.
+   - Lifestyle simulator uses evidence-based risk adjustment factors from published
+     clinical guidelines.
 
 -------------------------------------------------------------------------------
 6. TROUBLESHOOTING & COMMON PITFALLS
 -------------------------------------------------------------------------------
-Q: I get "429 RESOURCE_EXHAUSTED" when running `test_combined_simulator.py`.
+Q: I get "429 RESOURCE_EXHAUSTED" when running API-dependent modules.
 A: You hit the free tier per-minute or daily quota for a specific Gemini model.
    - Wait 1-2 minutes for the per-minute quota to reset.
-   - Or change the model in `combined_simulator.py` (line 178) to `gemini-3.5-flash-lite` or `gemini-3.5-flash`.
+   - Or change the model to another available Gemini variant.
 
 Q: I get "GEMINI_API_KEY environment variable not set".
 A: Ensure your `.env` file exists in the root project directory and contains:
    `GEMINI_API_KEY=AIzaSy...`
 
 Q: Why are SHAP explanations empty?
-A: Ensure `numba` and `llvmlite` are properly upgraded (`pip install --upgrade numba llvmlite`).
+A: Ensure `numba` and `llvmlite` are properly upgraded:
+   pip install --upgrade numba llvmlite
+
+Q: Unicode characters don't display correctly on Windows.
+A: Set the encoding before running:
+   $env:PYTHONIOENCODING="utf-8"; python <script>.py
+
+Q: RAG retrieval returns empty results.
+A: Ensure you've run `rag_agent.py` at least once to build the index.
+   The index persists in `data/chroma_db/` after the first build.
+
+Q: LangChainDeprecationWarning about HuggingFaceEmbeddings.
+A: This is a non-critical warning. The code uses `langchain-huggingface` as the
+   primary import with `langchain-community` as fallback.
+
+Q: Module 8 monitoring agent doesn't generate alerts on second run.
+A: If inputs haven't changed, no thresholds are crossed. Update inputs using
+   monitor.update_inputs() to simulate changing conditions.
 
 ===============================================================================
                  Happy Coding & Exploring TwinLife AI!

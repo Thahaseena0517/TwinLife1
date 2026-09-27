@@ -1,0 +1,77 @@
+DIABETES PREVENTION AND MANAGEMENT GUIDELINES
+(Adapted from American Diabetes Association Standards of Care 2024)
+
+1. BLOOD GLUCOSE CLASSIFICATION
+Fasting blood glucose levels are classified as:
+- Normal: < 100 mg/dL — No diabetes risk, continue healthy lifestyle
+- Pre-diabetes (Impaired Fasting Glucose): 100-125 mg/dL — Elevated risk requiring lifestyle intervention
+- Diabetes: >= 126 mg/dL — Confirmed diabetes (requires two separate tests for diagnosis)
+
+Oral Glucose Tolerance Test (OGTT) 2-hour values:
+- Normal: < 140 mg/dL
+- Pre-diabetes (Impaired Glucose Tolerance): 140-199 mg/dL
+- Diabetes: >= 200 mg/dL
+
+2. HbA1c (GLYCATED HEMOGLOBIN) TARGETS
+HbA1c reflects average blood glucose control over 2-3 months:
+- Normal: < 5.7%
+- Pre-diabetes: 5.7-6.4%
+- Diabetes: >= 6.5%
+
+Treatment targets for diagnosed diabetics:
+- General target: HbA1c < 7.0% (ADA recommendation)
+- More stringent target: HbA1c < 6.5% for recently diagnosed, long life expectancy, no significant cardiovascular disease
+- Less stringent target: HbA1c < 8.0% for elderly patients, those with limited life expectancy, extensive comorbidities, or history of severe hypoglycemia
+
+3. DIABETES RISK FACTORS
+Major risk factors for Type 2 Diabetes include:
+- BMI >= 25 kg/m² (>= 23 kg/m² for Asian populations)
+- Age >= 35 years (screening recommended)
+- Family history of diabetes (first-degree relative)
+- Physical inactivity
+- History of gestational diabetes
+- Hypertension (>= 140/90 mmHg or on therapy)
+- HDL cholesterol < 35 mg/dL or triglycerides > 250 mg/dL
+- Polycystic ovary syndrome
+- History of cardiovascular disease
+
+4. LIFESTYLE INTERVENTIONS FOR DIABETES PREVENTION
+The Diabetes Prevention Program (DPP) demonstrated that lifestyle intervention can reduce the risk of developing Type 2 diabetes by 58%:
+- Weight loss of 5-7% of body weight
+- At least 150 minutes per week of moderate-intensity physical activity
+- Dietary pattern emphasizing whole grains, fruits, vegetables, lean proteins
+- Reduction in total caloric intake, especially from saturated fats
+
+Medical Nutrition Therapy (MNT):
+- Individualized carbohydrate management (no single ideal percentage)
+- Emphasis on nutrient-dense carbohydrate sources
+- Minimize added sugars and refined grains
+- Include dietary fiber (at least 14g per 1,000 kcal)
+
+5. PHARMACOLOGICAL MANAGEMENT
+First-line therapy: Metformin (unless contraindicated)
+- Initiated when lifestyle modifications alone are insufficient
+- Typically started at HbA1c >= 6.5-7.0% at diagnosis
+
+Additional considerations:
+- For patients with established cardiovascular disease: GLP-1 receptor agonists or SGLT2 inhibitors preferred
+- Insulin therapy when HbA1c > 10% or blood glucose >= 300 mg/dL at presentation
+- Regular monitoring of kidney function (eGFR) when on metformin
+
+6. MONITORING AND FOLLOW-UP
+- Self-monitoring of blood glucose (SMBG) for patients on insulin
+- HbA1c testing: Every 3 months if not at target, every 6 months if stable
+- Annual comprehensive foot examination
+- Annual dilated eye exam
+- Annual urine albumin screening
+- Blood pressure monitoring at every visit
+- Lipid profile: At least annually
+
+7. DIABETES AND CARDIOVASCULAR RISK
+Diabetes significantly increases cardiovascular disease risk:
+- 2-4 times higher risk of heart disease and stroke
+- Blood pressure target: < 130/80 mmHg
+- Statin therapy recommended for most adults with diabetes aged 40-75
+- Low-dose aspirin may be considered for those at higher cardiovascular risk
+
+Source: American Diabetes Association. Standards of Care in Diabetes, 2024.

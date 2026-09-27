@@ -1,0 +1,94 @@
+HEALTH INSURANCE ADEQUACY AND PLANNING GUIDELINES
+(Adapted from IRDAI guidelines and standard insurance planning principles)
+
+1. SUM INSURED ADEQUACY
+The sum insured (SI) represents the maximum amount an insurance policy will pay for a claim:
+- Minimum recommended: Rs. 5,00,000 (5 Lakhs) for individuals
+- Adequate for families: Rs. 10,00,000 - 20,00,000 (10-20 Lakhs)
+- Recommended for metro cities: Rs. 25,00,000+ (25 Lakhs+) due to higher hospital costs
+
+Factors influencing adequate sum insured:
+- Age and pre-existing conditions
+- Family medical history
+- City of residence (metro vs. non-metro)
+- Lifestyle factors (smoking, sedentary lifestyle)
+- Inflation in healthcare costs (medical inflation in India: 10-15% annually)
+
+Coverage Adequacy Ratio interpretation:
+- Ratio >= 1.5: Excellent coverage (sum insured exceeds estimated costs by 50%+)
+- Ratio 1.0-1.5: Adequate coverage (fully covered with some margin)
+- Ratio 0.5-1.0: Under-insured (significant out-of-pocket risk)
+- Ratio < 0.5: Critically under-insured (immediate action needed)
+
+2. PREMIUM AFFORDABILITY
+Insurance premiums should be sustainable relative to income:
+- Ideal: Premium < 3% of annual income
+- Acceptable: Premium 3-5% of annual income
+- Stretch: Premium 5-8% of annual income
+- Unaffordable: Premium > 8% of annual income
+
+Premium affordability ratio interpretation:
+- Ratio < 0.03: Very affordable, consider enhancing coverage
+- Ratio 0.03-0.05: Affordable, good balance between coverage and cost
+- Ratio 0.05-0.08: Moderately strained, review if coverage can be optimized
+- Ratio > 0.08: Premium burden is high, explore more cost-effective plans
+
+Ways to reduce premiums without sacrificing coverage:
+- Opt for higher voluntary deductible (co-pay)
+- Choose family floater plans instead of individual policies
+- Purchase at a younger age (lower entry-age premium)
+- Maintain healthy lifestyle for wellness discounts
+- Consider super top-up plans for high coverage at lower premiums
+
+3. ESSENTIAL RIDERS AND ADD-ONS
+Riders are supplementary benefits that enhance the base health insurance policy:
+
+Critical Illness Rider:
+- Provides lump-sum payout on diagnosis of listed critical illnesses
+- Recommended for: Patients with elevated cardiovascular risk, family history of cancer
+- Common covered conditions: Heart attack, stroke, cancer, kidney failure, organ transplant
+
+Diabetes Care Rider:
+- Covers diabetes-related complications and ongoing management costs
+- Recommended for: Pre-diabetic (HbA1c 5.7-6.4%) and diabetic patients
+- Covers: Insulin supplies, regular monitoring, diabetic retinopathy, neuropathy treatment
+
+Hospital Cash Rider:
+- Provides daily cash allowance during hospitalization
+- Recommended for: Patients with hypertension or conditions requiring frequent hospitalization
+- Benefit: Covers incidental expenses not covered by main policy (attendant costs, food, transport)
+
+Personal Accident Rider:
+- Covers accidental death and disability
+- Universally recommended for all policyholders
+- Benefit: Financial protection beyond health-related coverage
+
+4. INSURANCE ADEQUACY SCORE INTERPRETATION
+A composite score (0-100) reflecting overall insurance preparedness:
+- 80-100: Excellent — Comprehensive coverage, affordable premium, all recommended riders in place
+- 60-79: Good — Adequate coverage with minor gaps (e.g., one missing rider)
+- 40-59: Fair — Noticeable gaps in coverage or premium strain
+- 20-39: Poor — Significant under-insurance, multiple gaps
+- 0-19: Critical — Severely under-insured, immediate policy review recommended
+
+5. CLAIM PROCESS BEST PRACTICES
+Cashless Claims:
+- Use network hospitals for cashless settlement
+- Pre-authorization required for planned hospitalizations
+- Carry policy card and ID proof at all times
+
+Reimbursement Claims:
+- Submit claims within 15-30 days of discharge (per policy terms)
+- Maintain all original bills, prescriptions, and discharge summaries
+- Include pre-hospitalization expenses (typically 30-60 days before admission)
+- Post-hospitalization follow-up costs are usually covered for 60-90 days
+
+6. POLICY RENEWAL AND PORTABILITY
+- Renew before expiry to maintain continuity benefits (waiting period credits)
+- IRDAI allows portability between insurers without losing waiting period benefits
+- Review sum insured annually against medical inflation (increase by 10-15% yearly)
+- Declare any new pre-existing conditions at renewal to avoid claim rejection
+
+Disclaimer: This document provides illustrative guidance for educational purposes only. Consult an IRDAI-licensed insurance advisor for personalized insurance planning.
+
+Source: Insurance Regulatory and Development Authority of India (IRDAI) guidelines, Insurance Institute of India publications.

@@ -4,7 +4,7 @@
 [![Gemini API](https://img.shields.io/badge/LLM-Google%20Gemini-orange.svg)](https://aistudio.google.com/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
-**TwinLife AI** is an intelligent digital-twin platform that models an individual's **Health**, **Financial**, and **Insurance** profiles. It combines machine learning risk prediction models (Random Forest, SHAP explainability), deterministic clinical and financial formulas, and an autonomous LLM tool-use agent to simulate treatment-plan affordability and funding options.
+**TwinLife AI** is an intelligent digital-twin platform that models an individual's **Health**, **Financial**, and **Insurance** profiles. It combines machine learning risk prediction models (Random Forest, SHAP explainability), deterministic clinical and financial formulas, an autonomous LLM tool-use agent, RAG-based guideline retrieval, a LangGraph orchestrator, proactive monitoring, and AI-narrated explanations to deliver a comprehensive wellness advisory system.
 
 ---
 
@@ -15,6 +15,8 @@
 - [Installation & Setup](#-installation--setup)
 - [Quick Start & Command Guide](#-quick-start--command-guide)
 - [Autonomous Agent Workflow](#-autonomous-agent-workflow)
+- [RAG Pipeline](#-rag-pipeline)
+- [Orchestrator Routing](#-orchestrator-routing)
 - [Health Score Calculation](#-health-score-calculation)
 - [License & Disclaimer](#-license--disclaimer)
 
@@ -22,35 +24,46 @@
 
 ## 🏗️ Overview & Architecture
 
-TwinLife AI operates on a modular pipeline where deterministic mathematical formulas and trained ML models power higher-level "Digital Twins". An autonomous AI agent then interacts with these twin interfaces via function calling to make multi-domain recommendations.
+TwinLife AI operates on a modular pipeline where deterministic mathematical formulas and trained ML models power higher-level "Digital Twins". An autonomous AI agent interacts with these twin interfaces via function calling, while a LangGraph orchestrator routes queries and a narration layer provides human-friendly explanations grounded in retrieved medical/financial guidelines.
 
 ```
 ┌─────────────────────────────────────────────────────────────────────────┐
-│                      MODULE 4: COMBINED SIMULATOR                       │
-│            (Autonomous Tool-Use Agent powered by Gemini API)            │
+│                      MODULE 6: ORCHESTRATOR (LangGraph)                 │
+│         Routes queries → Twins → RAG → Simulation → Narration          │
 └────────────────────────────────────┬────────────────────────────────────┘
-                                     │ (Invokes 4 Deterministic Tools)
-    ┌────────────────────────────────┼────────────────────────────────┐
-    ▼                                ▼                                ▼
-┌───────────────────────┐ ┌───────────────────────┐ ┌───────────────────────┐
-│      MODULE 3A        │ │      MODULE 3B        │ │      MODULE 3C        │
-│      HealthTwin       │ │      FinanceTwin      │ │     InsuranceTwin     │
-└───────────┬───────────┘ └───────────┬───────────┘ └───────────┬───────────┘
-            │                         │                         │
-     ┌──────┴──────┐                  │                         │
-     ▼             ▼                  │                         │
-┌──────────┐ ┌──────────┐             │                         │
-│ MODULE 2 │ │ MODULE 2 │             │                         │
-│ Cardio   │ │ Diabetes │             │                         │
-│ Model    │ │ Model    │             │                         │
-└────┬─────┘ └────┬─────┘             │                         │
-     └────────────┴─────────────┬─────┴─────────────────────────┘
-                                ▼
-                   ┌─────────────────────────┐
-                   │        MODULE 1         │
-                   │ Pure Domain Formulas    │
-                   │ (formulas.py)           │
-                   └─────────────────────────┘
+                                     │
+     ┌───────────────────────────────┼───────────────────────────────┐
+     ▼                               ▼                               ▼
+┌─────────────┐   ┌──────────────────────────────────┐   ┌─────────────┐
+│  MODULE 7   │   │      MODULE 4: COMBINED           │   │  MODULE 5   │
+│  Narration  │   │      SIMULATOR (Gemini Agent)      │   │  RAG Agent  │
+│  Agent      │   └────────────────┬─────────────────┘   │  (ChromaDB) │
+└─────────────┘                    │ (4 Deterministic     └─────────────┘
+                                   │  Tool Calls)
+     ┌─────────────────────────────┼─────────────────────────────┐
+     ▼                             ▼                             ▼
+┌───────────────────┐   ┌───────────────────┐   ┌───────────────────┐
+│    MODULE 3A      │   │    MODULE 3B      │   │    MODULE 3C      │
+│    HealthTwin     │   │    FinanceTwin    │   │   InsuranceTwin   │
+└────────┬──────────┘   └────────┬──────────┘   └────────┬──────────┘
+    ┌────┴────┐                  │                       │
+    ▼         ▼                  │                       │
+┌────────┐┌────────┐             │                       │
+│MODULE 2││MODULE 2│             │                       │
+│Cardio  ││Diabetes│             │                       │
+│Model   ││Model   │             │                       │
+└───┬────┘└───┬────┘             │                       │
+    └─────────┴──────────┬───────┴───────────────────────┘
+                         ▼
+            ┌─────────────────────────┐
+            │        MODULE 1         │     ┌────────────────────┐
+            │ Pure Domain Formulas    │     │ MODULE 8: Monitor  │
+            │ (formulas.py)           │     │ (APScheduler)      │
+            └─────────────────────────┘     └────────────────────┘
+                                            ┌────────────────────┐
+                                            │ MODULE 9: Engines  │
+                                            │ (Recommendations)  │
+                                            └────────────────────┘
 ```
 
 ---
@@ -89,6 +102,40 @@ TwinLife AI operates on a modular pipeline where deterministic mathematical form
   3. `get_cheaper_alternative(condition, current_cost)`: Looks up next lower-cost medical tier.
   4. `get_health_context(condition)`: Retrieves clinical risk level and urgency.
 - **Explainability**: Every tool execution is recorded in an ordered `tool_trace` for full transparency.
+
+### Module 5: RAG Pipeline (`rag_agent.py`)
+- **Document Indexing**: Chunks 5 guideline documents (cardiovascular, diabetes, financial planning, insurance, general wellness) using LangChain's `RecursiveCharacterTextSplitter` (~2000 chars/chunk, 200 overlap).
+- **Embedding Model**: `sentence-transformers/all-MiniLM-L6-v2` (runs locally, no API key needed).
+- **Vector Store**: ChromaDB with persistent local storage (`data/chroma_db/`).
+- **Retrieval**: `retrieve(topic, top_k=3)` returns the most semantically relevant guideline chunks for any query.
+- **Guideline Sources**: AHA/ACC cardiovascular guidelines, ADA diabetes standards, RBI/SEBI financial planning, IRDAI insurance guidelines, WHO/ICMR wellness guidelines.
+
+### Module 6: Orchestrator (`orchestrator.py`, LangGraph)
+- **Two-Step Routing**:
+  - **Step 1 (Deterministic)**: Keyword matching against domain-specific terms (e.g., "diabetes" → health, "EMI" → finance, "premium" → insurance, "treatment cost" → all three + simulate).
+  - **Step 2 (LLM Fallback)**: For ambiguous queries, calls Gemini API to classify into `{twins, mode, simulate}`.
+- **LangGraph State Graph**: Conditional edges route through health → finance → insurance → RAG → simulate → narrate → END based on routing decisions.
+- **Full Pipeline**: Processes a natural language query end-to-end through twin assessments, RAG retrieval, optional simulation, and narrated explanation.
+
+### Module 7: Narration Layer (`narration_agent.py`)
+- **`generate_explanation(twin_outputs, shap_features, rag_chunks)`**: Calls Gemini API to produce a warm, plain-language explanation combining computed scores, SHAP-driven factor analysis, and cited RAG guideline references.
+- **`generate_ranked_whatifs(scenarios)`**: Ranks candidate what-if scenarios using `score = risk_reduction×0.5 + (1/cost)×0.3 + insurance_fit×0.2` and narrates trade-offs.
+- **Rules**: No invented numbers, natural source citations, disclaimers included, under 300 words.
+
+### Module 8: Monitoring Agent (`monitoring_agent.py`, APScheduler)
+- **Scheduled Checks**: Weekly (configurable) profile recomputation using APScheduler's `BackgroundScheduler`.
+- **Threshold Alerts**:
+  - Health score drop > 10 points
+  - DTI ratio rise above 0.40
+  - Savings rate fall below 10%
+  - Insurance score drop > 15 points
+  - New insurance rider gaps detected
+- **Persistence**: File-based snapshots (`data/snapshots/`) and notification logs (`data/notifications/`).
+
+### Module 9: Recommendation Engines (`recommendation_engines.py`)
+- **`investment_recommendation(finance_profile, age)`**: Rule-based tier logic — emergency fund first → growth allocation → balanced → conservative → no new investment.
+- **`purchase_impact_simulator(finance_profile, purchase_cost)`**: Analyzes DTI impact, months to save, emergency fund depletion. Generates ranked alternatives: defer, cheaper tier, EMI split (24 months), expense reallocation.
+- **`lifestyle_impact_simulator(health_profile, habit_changes)`**: Projects health score changes from lifestyle modifications (quit smoking, weight loss, exercise, diet). Generates substitute/moderate/offset alternatives for worsening habits.
 
 ---
 
@@ -141,6 +188,31 @@ python insurance_twin.py
 python test_combined_simulator.py
 ```
 
+### Build & Query RAG Pipeline (Module 5)
+```bash
+python rag_agent.py
+```
+
+### Test Orchestrator Routing (Module 6)
+```bash
+python orchestrator.py
+```
+
+### Generate AI Narrations (Module 7)
+```bash
+python narration_agent.py
+```
+
+### Run Monitoring Agent Check (Module 8)
+```bash
+python monitoring_agent.py
+```
+
+### Test Recommendation Engines (Module 9)
+```bash
+python recommendation_engines.py
+```
+
 ---
 
 ## 🤖 Autonomous Agent Workflow
@@ -158,6 +230,36 @@ When evaluating a treatment plan cost (e.g. ₹5,00,000), the Gemini agent reaso
 
 [Agent Synthesis] → Generates detailed recommendation explaining optimal insurance & self-funding path.
 ```
+
+---
+
+## 📚 RAG Pipeline
+
+The RAG system indexes 5 authoritative guideline documents into ChromaDB:
+
+| Document | Source | Topics Covered |
+|----------|--------|---------------|
+| `cardiovascular_guidelines.txt` | AHA/ACC 2019 | BP staging, cholesterol, Framingham risk, lifestyle |
+| `diabetes_management_guidelines.txt` | ADA 2024 | Glucose classification, HbA1c targets, pharmacology |
+| `financial_planning_guidelines.txt` | RBI/SEBI | DTI management, savings benchmarks, investment allocation |
+| `insurance_planning_guidelines.txt` | IRDAI | Sum insured adequacy, premium ratios, rider analysis |
+| `general_wellness_guidelines.txt` | WHO/ICMR | BMI, physical activity, nutrition, sleep, screening |
+
+Each query retrieves the top-3 most semantically relevant chunks using cosine similarity over `all-MiniLM-L6-v2` embeddings.
+
+---
+
+## 🔀 Orchestrator Routing
+
+The LangGraph orchestrator uses two-step routing:
+
+| Query Example | Routed To | Mode |
+|--------------|-----------|------|
+| "What is my blood pressure?" | Health | Single-domain |
+| "Am I saving enough?" | Finance | Single-domain |
+| "How much is my coverage?" | Insurance | Single-domain |
+| "Can I afford ₹5L surgery?" | Health + Finance + Insurance | Cross-domain + Simulate |
+| "Treatment for diabetes Rs.3L" | Health + Finance + Insurance | Cross-domain + Simulate |
 
 ---
 

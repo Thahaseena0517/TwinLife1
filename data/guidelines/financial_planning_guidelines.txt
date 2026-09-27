@@ -1,0 +1,92 @@
+PERSONAL FINANCIAL HEALTH AND PLANNING GUIDELINES
+(Adapted from RBI, SEBI, and standard financial planning frameworks)
+
+1. DEBT-TO-INCOME (DTI) RATIO MANAGEMENT
+The Debt-to-Income ratio measures what percentage of gross monthly income goes toward debt obligations (EMIs, fixed expenses):
+- Healthy: DTI < 0.30 (30%) — Comfortable financial position
+- Moderate: DTI 0.30-0.40 (30-40%) — Manageable but limited flexibility
+- Strained: DTI 0.40-0.50 (40-50%) — Financial stress zone, new debt should be avoided
+- Critical: DTI > 0.50 (50%) — Serious financial distress, debt restructuring recommended
+
+Banks and NBFCs in India typically reject loan applications with DTI above 50%. For home loans, the recommended FOIR (Fixed Obligations to Income Ratio) is below 40%.
+
+Action Steps for High DTI:
+- Prioritize paying off high-interest debt (credit cards first, then personal loans)
+- Consider debt consolidation at lower interest rates
+- Avoid taking on new EMI obligations until DTI drops below 0.40
+- Increase income through upskilling or additional revenue streams
+
+2. SAVINGS RATE BENCHMARKS
+The savings rate represents what fraction of income is retained after all expenses:
+- Excellent: >= 30% savings rate — Strong wealth-building trajectory
+- Good: 20-30% savings rate — Adequate for long-term financial goals
+- Adequate: 10-20% savings rate — Covers basics but limited growth
+- Poor: < 10% savings rate — Insufficient for financial security
+
+The 50/30/20 Rule (popularized by Elizabeth Warren):
+- 50% of income: Needs (rent, utilities, groceries, EMIs)
+- 30% of income: Wants (entertainment, dining, subscriptions)
+- 20% of income: Savings and investments
+
+For Indian households, a modified 50/30/20 approach accounts for higher savings goals needed due to limited social security infrastructure.
+
+3. EMERGENCY FUND GUIDELINES
+An emergency fund provides a financial buffer against unexpected expenses or income loss:
+- Minimum: 3 months of total expenses (basic safety net)
+- Recommended: 6 months of total expenses (standard guideline)
+- Conservative: 9-12 months of total expenses (for freelancers, single-income households, volatile industries)
+
+Where to park emergency funds:
+- High-yield savings accounts
+- Liquid mutual funds (overnight or ultra-short duration)
+- Fixed deposits with premature withdrawal facility
+- Avoid locking emergency funds in equity, PPF, or long-term instruments
+
+4. FINANCIAL STABILITY SCORE INTERPRETATION
+A composite score (0-100) reflecting overall financial health:
+- 80-100: Excellent — Strong emergency fund, low debt, high savings rate
+- 60-79: Good — Adequate reserves with room for improvement
+- 40-59: Fair — Some financial vulnerabilities, needs attention
+- 20-39: Poor — Significant financial stress, immediate action required
+- 0-19: Critical — Severe debt burden, seek professional financial counselling
+
+5. TREATMENT AFFORDABILITY ASSESSMENT
+When evaluating whether a medical treatment is affordable:
+- Affordability Score >= 1.0: Fully coverable from disposable income within the saving horizon
+- Affordability Score 0.5-1.0: Partially coverable, may need to supplement with insurance or EMI
+- Affordability Score < 0.5: Significant shortfall, explore insurance coverage, medical loans, or treatment alternatives
+
+Strategies for funding expensive treatments:
+1. Check insurance coverage first (sum insured vs. treatment cost)
+2. Use accumulated emergency fund if non-critical to deplete
+3. Explore medical loan EMI options (0% interest EMI often available for hospital tie-ups)
+4. Consider phased treatment plans if medically viable
+5. Government health schemes (Ayushman Bharat for eligible families)
+
+6. INVESTMENT ALLOCATION GUIDELINES (AGE-BASED)
+Asset allocation should reflect risk tolerance, which correlates with age and financial stability:
+
+Young investors (age < 35, stability score >= 70):
+- 70-80% equity (index funds, diversified equity mutual funds)
+- 10-20% debt (PPF, debt mutual funds)
+- 5-10% gold/alternatives
+
+Mid-career (age 35-50, stability score >= 60):
+- 50-60% equity
+- 30-40% debt
+- 5-10% gold/alternatives
+
+Pre-retirement (age 50+):
+- 30-40% equity
+- 50-60% debt
+- 5-10% gold/alternatives
+
+7. KEY FINANCIAL RATIOS TO MONITOR
+- Liquidity Ratio: Liquid assets / Monthly expenses (target: >= 6)
+- Solvency Ratio: Total assets / Total liabilities (target: >= 2)
+- Investment Ratio: Investment assets / Total assets (target: >= 0.50)
+- Insurance Coverage Ratio: Sum insured / Annual income (target: >= 10x for life, >= 5x for health)
+
+Disclaimer: All financial guidance in this document is for educational and illustrative purposes only. Consult a SEBI-registered investment advisor or certified financial planner for personalized advice.
+
+Source: Reserve Bank of India (RBI) financial literacy guidelines, SEBI investor awareness materials, NISM financial planning curriculum.
