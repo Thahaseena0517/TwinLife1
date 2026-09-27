@@ -18,7 +18,7 @@ import os
 import glob
 import warnings
 
-from langchain.text_splitter import RecursiveCharacterTextSplitter
+from langchain_text_splitters import RecursiveCharacterTextSplitter
 try:
     from langchain_huggingface import HuggingFaceEmbeddings
 except ImportError:
