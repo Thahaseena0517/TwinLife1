@@ -580,7 +580,7 @@ Rule-based recommendation and simulation engines:
 ### 1️⃣ Clone the repository
 
 ```bash
-git clone https://github.com/Vajra-Chaitanya/Twin-Life.git
+https://github.com/Thahaseena0517/TwinLife1.git
 cd Twin-Life
 ```
 
