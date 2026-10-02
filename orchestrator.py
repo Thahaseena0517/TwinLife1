@@ -444,10 +444,12 @@ class Orchestrator:
         """Extract a monetary amount from a query string."""
         # Match patterns like: Rs.500000, ₹5,00,000, 5 lakh, 500000
         patterns = [
-            r"(?:rs\.?|₹|inr)\s*([\d,]+(?:\.\d+)?)",
+            r"(?:rs\.?|₹|inr)\s*([\d.]+)\s*(?:lakh|lac)",
+            r"(?:rs\.?|₹|inr)\s*([\d.]+)\s*(?:crore|cr)",
             r"([\d.]+)\s*(?:lakh|lac)",
             r"([\d.]+)\s*(?:crore|cr)",
-            r"\b(\d{4,})\b",  # bare numbers >= 1000
+            r"(?:rs\.?|₹|inr)\s*([\d,]+(?:\.\d+)?)",
+            r"\b(\d{4,})\b",
         ]
         q_lower = query.lower()
         for i, pat in enumerate(patterns):
@@ -455,9 +457,9 @@ class Orchestrator:
             if match:
                 val = match.group(1).replace(",", "")
                 num = float(val)
-                if i == 1:  # lakh
+                if i in (0, 2):  # lakh
                     num *= 100_000
-                elif i == 2:  # crore
+                elif i in (1, 3):  # crore
                     num *= 10_000_000
                 return num
         return 500_000  # default fallback

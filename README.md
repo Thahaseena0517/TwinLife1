@@ -1,278 +1,780 @@
-# TwinLife AI — Autonomous Multi-Domain Digital Twin Platform
+# TwinLife AI
 
-[![Python 3.12+](https://img.shields.io/badge/python-3.12+-blue.svg)](https://www.python.org/downloads/)
-[![Gemini API](https://img.shields.io/badge/LLM-Google%20Gemini-orange.svg)](https://aistudio.google.com/)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+### Autonomous Multi-Domain Digital Twin Platform for Personalized Health, Finance & Insurance
 
-**TwinLife AI** is an intelligent digital-twin platform that models an individual's **Health**, **Financial**, and **Insurance** profiles. It combines machine learning risk prediction models (Random Forest, SHAP explainability), deterministic clinical and financial formulas, an autonomous LLM tool-use agent, RAG-based guideline retrieval, a LangGraph orchestrator, proactive monitoring, and AI-narrated explanations to deliver a comprehensive wellness advisory system.
+TwinLife AI is an intelligent digital-twin platform that creates a unified representation of an individual's **health, financial situation, and insurance profile**.
 
----
+The system combines:
 
-## 📌 Table of Contents
+- Deterministic health, finance, and insurance calculations
+- Machine Learning risk prediction
+- Random Forest models
+- SHAP-based explainability
+- Autonomous Gemini AI agent with function calling
+- RAG-based guideline retrieval
+- ChromaDB vector storage
+- LangGraph orchestration
+- AI-generated explanations
+- Treatment affordability and insurance simulation
+- Monitoring and recommendation engines
+- React-based interactive dashboard
 
-- [Overview & Architecture](#-overview--architecture)
-- [Module Breakdown](#-module-breakdown)
-- [Installation & Setup](#-installation--setup)
-- [Quick Start & Command Guide](#-quick-start--command-guide)
-- [Autonomous Agent Workflow](#-autonomous-agent-workflow)
-- [RAG Pipeline](#-rag-pipeline)
-- [Orchestrator Routing](#-orchestrator-routing)
-- [Health Score Calculation](#-health-score-calculation)
-- [License & Disclaimer](#-license--disclaimer)
+The main goal is to connect domains that are normally handled separately.
 
----
+For example:
 
-## 🏗️ Overview & Architecture
+> "Can I afford a ₹5 lakh treatment, and does my insurance cover it?"
 
-TwinLife AI operates on a modular pipeline where deterministic mathematical formulas and trained ML models power higher-level "Digital Twins". An autonomous AI agent interacts with these twin interfaces via function calling, while a LangGraph orchestrator routes queries and a narration layer provides human-friendly explanations grounded in retrieved medical/financial guidelines.
-
-```
-┌─────────────────────────────────────────────────────────────────────────┐
-│                      MODULE 6: ORCHESTRATOR (LangGraph)                 │
-│         Routes queries → Twins → RAG → Simulation → Narration          │
-└────────────────────────────────────┬────────────────────────────────────┘
-                                     │
-     ┌───────────────────────────────┼───────────────────────────────┐
-     ▼                               ▼                               ▼
-┌─────────────┐   ┌──────────────────────────────────┐   ┌─────────────┐
-│  MODULE 7   │   │      MODULE 4: COMBINED           │   │  MODULE 5   │
-│  Narration  │   │      SIMULATOR (Gemini Agent)      │   │  RAG Agent  │
-│  Agent      │   └────────────────┬─────────────────┘   │  (ChromaDB) │
-└─────────────┘                    │ (4 Deterministic     └─────────────┘
-                                   │  Tool Calls)
-     ┌─────────────────────────────┼─────────────────────────────┐
-     ▼                             ▼                             ▼
-┌───────────────────┐   ┌───────────────────┐   ┌───────────────────┐
-│    MODULE 3A      │   │    MODULE 3B      │   │    MODULE 3C      │
-│    HealthTwin     │   │    FinanceTwin    │   │   InsuranceTwin   │
-└────────┬──────────┘   └────────┬──────────┘   └────────┬──────────┘
-    ┌────┴────┐                  │                       │
-    ▼         ▼                  │                       │
-┌────────┐┌────────┐             │                       │
-│MODULE 2││MODULE 2│             │                       │
-│Cardio  ││Diabetes│             │                       │
-│Model   ││Model   │             │                       │
-└───┬────┘└───┬────┘             │                       │
-    └─────────┴──────────┬───────┴───────────────────────┘
-                         ▼
-            ┌─────────────────────────┐
-            │        MODULE 1         │     ┌────────────────────┐
-            │ Pure Domain Formulas    │     │ MODULE 8: Monitor  │
-            │ (formulas.py)           │     │ (APScheduler)      │
-            └─────────────────────────┘     └────────────────────┘
-                                            ┌────────────────────┐
-                                            │ MODULE 9: Engines  │
-                                            │ (Recommendations)  │
-                                            └────────────────────┘
-```
+TwinLife AI can combine the user's **health context, financial capacity, and insurance coverage** to produce a cross-domain analysis.
 
 ---
 
-## 📦 Module Breakdown
+# Table of Contents
 
-### Module 1: Domain Formulas (`formulas.py`)
-- **Pure, deterministic functions** with 0 external side-effects or I/O.
-- **Health**: Body Mass Index (BMI), WHO Obesity Staging, Blood Pressure Staging (AHA/ACC 2017), Framingham 10-Year Cardiovascular Disease Risk, Blood Glucose Diabetes Indicator.
-- **Finance**: Debt-to-Income (DTI) Ratio, Savings Rate, Emergency Fund Coverage (Months), Financial Stability Score (0-100), Treatment Affordability Score.
-- **Insurance**: Coverage Adequacy Ratio, Premium Affordability Ratio, Composite Insurance Adequacy Score (0-100).
-- **Unit Tests**: Full test suite in `test_formulas.py` (70 unit tests passing).
-
-### Module 2: Health ML Models (`train_cardio_model.py` & `train_diabetes_model.py`)
-- **Cardiovascular Disease Classifier**:
-  - Dataset: `data/cardio_train.csv` (70,000 rows).
-  - Preprocessing: Age converted from days to years (`age // 365`), BMI derived, physiological filtering (`ap_lo <= ap_hi`).
-  - Model: `RandomForestClassifier(n_estimators=200, max_depth=10, min_samples_leaf=20)`.
-  - Metrics: **Accuracy: 73.6% | F1-Score: 72.0% | ROC-AUC: 80.3%**. Saved to `models/cardio_model.pkl`.
-- **Diabetes Classifier**:
-  - Dataset: `data/diabetes_prediction_dataset.csv` (100,000 rows).
-  - Preprocessing: Deduplication (3,854 duplicate rows removed), One-hot encoding for categorical variables, class balancing.
-  - Model: `RandomForestClassifier(class_weight='balanced')`.
-  - Metrics: **Accuracy: 90.2% | F1-Score: 61.7% | ROC-AUC: 97.5%**. Saved to `models/diabetes_model.pkl`.
-
-### Module 3: Digital Twin Classes (`health_twin.py`, `finance_twin.py`, `insurance_twin.py`)
-- **`HealthTwin`**: Integrates both ML model predictions, SHAP feature importance tree explainers, and Module 1 formulas into a unified health profile and a 0-100 composite health score.
-- **`FinanceTwin`**: Evaluates financial stability, debt obligations, emergency funds, and computes 12-month treatment affordability (`affordability_for(cost)`).
-- **`InsuranceTwin`**: Estimates 5-year condition-specific medical costs, checks sum insured limits, and performs rider gap analysis (e.g. Critical Illness, Diabetes Care, Hospital Cash riders).
-
-### Module 4: Autonomous Combined Simulator (`combined_simulator.py`)
-- **Agent Architecture**: Autonomous function-calling agent using the Google Gemini API (`google-genai` SDK).
-- **Deterministic Tools Registered**:
-  1. `check_affordability(cost)`: Evaluates user's financial capacity over 12 months.
-  2. `check_insurance_coverage(cost)`: Computes covered amount and out-of-pocket gap.
-  3. `get_cheaper_alternative(condition, current_cost)`: Looks up next lower-cost medical tier.
-  4. `get_health_context(condition)`: Retrieves clinical risk level and urgency.
-- **Explainability**: Every tool execution is recorded in an ordered `tool_trace` for full transparency.
-
-### Module 5: RAG Pipeline (`rag_agent.py`)
-- **Document Indexing**: Chunks 5 guideline documents (cardiovascular, diabetes, financial planning, insurance, general wellness) using LangChain's `RecursiveCharacterTextSplitter` (~2000 chars/chunk, 200 overlap).
-- **Embedding Model**: `sentence-transformers/all-MiniLM-L6-v2` (runs locally, no API key needed).
-- **Vector Store**: ChromaDB with persistent local storage (`data/chroma_db/`).
-- **Retrieval**: `retrieve(topic, top_k=3)` returns the most semantically relevant guideline chunks for any query.
-- **Guideline Sources**: AHA/ACC cardiovascular guidelines, ADA diabetes standards, RBI/SEBI financial planning, IRDAI insurance guidelines, WHO/ICMR wellness guidelines.
-
-### Module 6: Orchestrator (`orchestrator.py`, LangGraph)
-- **Two-Step Routing**:
-  - **Step 1 (Deterministic)**: Keyword matching against domain-specific terms (e.g., "diabetes" → health, "EMI" → finance, "premium" → insurance, "treatment cost" → all three + simulate).
-  - **Step 2 (LLM Fallback)**: For ambiguous queries, calls Gemini API to classify into `{twins, mode, simulate}`.
-- **LangGraph State Graph**: Conditional edges route through health → finance → insurance → RAG → simulate → narrate → END based on routing decisions.
-- **Full Pipeline**: Processes a natural language query end-to-end through twin assessments, RAG retrieval, optional simulation, and narrated explanation.
-
-### Module 7: Narration Layer (`narration_agent.py`)
-- **`generate_explanation(twin_outputs, shap_features, rag_chunks)`**: Calls Gemini API to produce a warm, plain-language explanation combining computed scores, SHAP-driven factor analysis, and cited RAG guideline references.
-- **`generate_ranked_whatifs(scenarios)`**: Ranks candidate what-if scenarios using `score = risk_reduction×0.5 + (1/cost)×0.3 + insurance_fit×0.2` and narrates trade-offs.
-- **Rules**: No invented numbers, natural source citations, disclaimers included, under 300 words.
-
-### Module 8: Monitoring Agent (`monitoring_agent.py`, APScheduler)
-- **Scheduled Checks**: Weekly (configurable) profile recomputation using APScheduler's `BackgroundScheduler`.
-- **Threshold Alerts**:
-  - Health score drop > 10 points
-  - DTI ratio rise above 0.40
-  - Savings rate fall below 10%
-  - Insurance score drop > 15 points
-  - New insurance rider gaps detected
-- **Persistence**: File-based snapshots (`data/snapshots/`) and notification logs (`data/notifications/`).
-
-### Module 9: Recommendation Engines (`recommendation_engines.py`)
-- **`investment_recommendation(finance_profile, age)`**: Rule-based tier logic — emergency fund first → growth allocation → balanced → conservative → no new investment.
-- **`purchase_impact_simulator(finance_profile, purchase_cost)`**: Analyzes DTI impact, months to save, emergency fund depletion. Generates ranked alternatives: defer, cheaper tier, EMI split (24 months), expense reallocation.
-- **`lifestyle_impact_simulator(health_profile, habit_changes)`**: Projects health score changes from lifestyle modifications (quit smoking, weight loss, exercise, diet). Generates substitute/moderate/offset alternatives for worsening habits.
+- [Overview](#overview)
+- [Problem Statement](#problem-statement)
+- [Objectives](#objectives)
+- [Key Features](#key-features)
+- [System Architecture](#system-architecture)
+- [Module Breakdown](#module-breakdown)
+- [Technology Stack](#technology-stack)
+- [Machine Learning Models](#machine-learning-models)
+- [RAG Pipeline](#rag-pipeline)
+- [Autonomous Agent Workflow](#autonomous-agent-workflow)
+- [Frontend](#frontend)
+- [Backend](#backend)
+- [Installation & Setup](#installation--setup)
+- [Environment Variables](#environment-variables)
+- [Running the Project](#running-the-project)
+- [API Endpoints](#api-endpoints)
+- [Example Queries](#example-queries)
+- [Project Structure](#project-structure)
+- [Testing](#testing)
+- [Current Limitations](#current-limitations)
+- [Future Enhancements](#future-enhancements)
+- [Disclaimer](#disclaimer)
+- [License](#license)
 
 ---
 
-## ⚡ Installation & Setup
+# Overview
 
-### 1. Clone & Environment Creation
-```bash
+TwinLife AI models three interconnected domains:
+
+```text
+                    ┌─────────────────────┐
+                    │      User Input     │
+                    └──────────┬──────────┘
+                               │
+                               ▼
+                    ┌─────────────────────┐
+                    │   React Frontend    │
+                    │     + Vite          │
+                    └──────────┬──────────┘
+                               │
+                         REST API / JSON
+                               │
+                               ▼
+                    ┌─────────────────────┐
+                    │     FastAPI         │
+                    │      Backend        │
+                    └──────────┬──────────┘
+                               │
+                               ▼
+                    ┌─────────────────────┐
+                    │ TwinLife Service    │
+                    └──────────┬──────────┘
+                               │
+                               ▼
+                    ┌─────────────────────┐
+                    │ LangGraph           │
+                    │ Orchestrator        │
+                    └──────────┬──────────┘
+                               │
+          ┌────────────────────┼────────────────────┐
+          ▼                    ▼                    ▼
+   ┌─────────────┐     ┌─────────────┐     ┌─────────────┐
+   │ Health Twin │     │ Finance Twin│     │ Insurance   │
+   │             │     │             │     │ Twin        │
+   └──────┬──────┘     └──────┬──────┘     └──────┬──────┘
+          │                    │                    │
+          └────────────────────┼────────────────────┘
+                               │
+                ┌──────────────┴──────────────┐
+                ▼                             ▼
+        ┌──────────────┐              ┌──────────────┐
+        │ RAG Agent    │              │ Gemini Agent │
+        │ ChromaDB     │              │ Simulation   │
+        └──────┬───────┘              └──────┬───────┘
+               │                             │
+               └──────────────┬──────────────┘
+                              ▼
+                    ┌─────────────────────┐
+                    │ Gemini Narration    │
+                    │ + Recommendations   │
+                    └──────────┬──────────┘
+                               │
+                               ▼
+                    ┌─────────────────────┐
+                    │ Interactive Results │
+                    │ Dashboard            │
+                    └─────────────────────┘
+
+Problem Statement
+Health, finance, and insurance decisions are often handled independently.
+A health application may identify a medical risk without considering whether the person can financially manage the treatment.
+A financial application may analyze income, expenses, and savings without considering future medical expenses.
+An insurance application may show coverage without considering the individual's actual health and financial situation.
+TwinLife AI addresses this gap by combining these three domains into one digital-twin system.
+Objectives
+The main objectives of TwinLife AI are:
+1. Build a digital representation of a user's health profile.
+2. Analyze financial stability and affordability.
+3. Evaluate insurance adequacy.
+4. Predict health risks using Machine Learning.
+5. Explain ML predictions using SHAP.
+6. Retrieve relevant health and financial guidelines using RAG.
+7. Route user queries through an intelligent orchestrator.
+8. Simulate treatment affordability and insurance coverage.
+9. Generate personalized AI explanations.
+10. Provide recommendations and monitoring capabilities.
+Key Features
+Health Analysis
+- BMI calculation
+- BMI classification
+- Blood pressure staging
+- Blood glucose analysis
+- HbA1c analysis
+- Cardiovascular risk prediction
+- Diabetes risk prediction
+- Smoking analysis
+- Physical activity analysis
+- Health score
+- SHAP-based feature importance
+Finance Analysis
+- Monthly income analysis
+- Fixed expense analysis
+- Variable expense analysis
+- EMI analysis
+- Disposable income
+- Debt-to-income ratio
+- Savings rate
+- Emergency fund estimation
+- Financial stability score
+Insurance Analysis
+- Sum insured analysis
+- Coverage adequacy ratio
+- Premium affordability ratio
+- Insurance adequacy score
+- Rider gap identification
+- Insurance coverage simulation
+Autonomous Treatment Simulation
+The system can analyze questions such as:
+Can I afford a Rs.5 lakh surgery?
+
+The autonomous agent can evaluate:
+- Treatment cost
+- Financial affordability
+- Insurance coverage
+- Coverage gap
+- Health context
+- Urgency
+- Alternative/recommendation
+RAG-Based Knowledge
+The system retrieves relevant guideline chunks from a local knowledge base.
+The frontend displays:
+- Guidelines Used
+- Retrieved Knowledge
+- Top 3 relevant guideline chunks
+This makes the RAG process transparent during demonstrations.
+Explainable AI
+Health predictions include SHAP-based top contributing factors.
+Example:
+HbA1c
+Blood Glucose
+Age
+Systolic BP
+BMI
+
+Interactive Dashboard
+The React dashboard displays:
+- Health score
+- Finance score
+- Insurance score
+- Health metrics
+- Financial breakdown
+- Insurance details
+- Treatment simulation
+- RAG sources
+- AI explanation
+Validation and Error Handling
+The frontend validates:
+- Health ranges
+- Financial values
+- Insurance values
+- Expense-to-income consistency
+- Premium-to-income consistency
+The interface also provides:
+- Loading state
+- Backend connection error handling
+- Invalid input feedback
+System Architecture
+TwinLife AI follows a modular architecture.
+                     USER
+                       │
+                       ▼
+              ┌─────────────────┐
+              │ React + Vite    │
+              │ Frontend        │
+              └────────┬────────┘
+                       │
+                       ▼
+              ┌─────────────────┐
+              │ FastAPI         │
+              │ REST API        │
+              └────────┬────────┘
+                       │
+                       ▼
+              ┌─────────────────┐
+              │ TwinLifeService │
+              └────────┬────────┘
+                       │
+                       ▼
+              ┌─────────────────┐
+              │ LangGraph       │
+              │ Orchestrator    │
+              └────────┬────────┘
+                       │
+       ┌───────────────┼────────────────┐
+       │               │                │
+       ▼               ▼                ▼
+   Health Twin    Finance Twin    Insurance Twin
+       │               │                │
+       └───────────────┼────────────────┘
+                       │
+             ┌─────────┴─────────┐
+             ▼                   ▼
+        ML + SHAP             RAG
+             │                   │
+             │             ChromaDB
+             │                   │
+             └─────────┬─────────┘
+                       ▼
+                 Gemini Agent
+                       │
+                       ▼
+                 AI Narration
+                       │
+                       ▼
+                  Dashboard
+
+Module Breakdown
+Module 1 — Deterministic Formulas
+The first module contains deterministic calculations for the three domains.
+Health
+- BMI
+- WHO BMI classification
+- Blood pressure staging
+- Framingham cardiovascular risk
+- Blood glucose indicators
+Finance
+- Debt-to-income ratio
+- Savings rate
+- Emergency fund
+- Financial stability
+- Treatment affordability
+Insurance
+- Coverage adequacy
+- Premium affordability
+- Composite insurance adequacy
+- Rider gap analysis
+Module 2 — Machine Learning & Explainability
+Two Random Forest models are used for health risk prediction.
+Cardiovascular Risk Model
+Dataset:
+data/cardio_train.csv
+
+Dataset size:
+70,000 rows
+
+Model:
+Random Forest
+
+Configuration includes:
+200 trees
+Maximum depth = 10
+Minimum samples leaf = 20
+
+Reported evaluation:
+Accuracy  = 73.6%
+F1 Score  = 72.0%
+ROC-AUC   = 80.3%
+
+Diabetes Risk Model
+Dataset:
+data/diabetes_prediction_dataset.csv
+
+Dataset size:
+100,000 rows
+
+Duplicate records were removed before training.
+Model:
+Random Forest
+
+Class balancing was applied during training.
+Reported evaluation:
+Accuracy  = 90.2%
+F1 Score  = 61.7%
+ROC-AUC   = 97.5%
+
+SHAP
+SHAP is used to explain model predictions and identify the most influential features.
+The dashboard displays the top contributing factors.
+Module 3 — Digital Twins
+TwinLife AI contains three domain-specific digital twins.
+Health Twin
+Responsible for:
+- Health scoring
+- BMI
+- Blood pressure
+- Cardiovascular risk
+- Diabetes risk
+- Health-related indicators
+- SHAP explanations
+Finance Twin
+Responsible for:
+- Financial stability
+- DTI
+- Savings
+- Emergency fund
+- Disposable income
+- Affordability
+Insurance Twin
+Responsible for:
+- Insurance adequacy
+- Coverage ratio
+- Premium affordability
+- Rider analysis
+- Coverage gaps
+Module 4 — Autonomous Treatment Simulator
+The treatment simulator uses a Gemini-based tool-use agent.
+The agent has access to deterministic tools including:
+check_affordability
+check_insurance_coverage
+get_cheaper_alternative
+get_health_context
+
+Example:
+User:
+Can I afford a Rs.5 lakh surgery?
+
+The agent can evaluate:
+Treatment Cost
+       ↓
+Financial Affordability
+       ↓
+Insurance Coverage
+       ↓
+Coverage Gap
+       ↓
+Health Context
+       ↓
+Alternative / Recommendation
+
+The frontend exposes the tool results through the Treatment Simulation dashboard.
+Module 5 — RAG Knowledge System
+TwinLife AI uses Retrieval-Augmented Generation to ground AI explanations in guideline documents.
+Knowledge Sources
+The knowledge base contains documents covering:
+Document	Source	Main Topics
+cardiovascular_guidelines.txt	AHA/ACC	BP, cardiovascular risk, lifestyle
+diabetes_management_guidelines.txt	ADA	Glucose, HbA1c, diabetes
+financial_planning_guidelines.txt	RBI/SEBI	Financial planning
+insurance_planning_guidelines.txt	IRDAI	Insurance planning
+general_wellness_guidelines.txt	WHO/ICMR	BMI, exercise, nutrition, wellness
+
+
+RAG Pipeline
+Guideline Documents
+        ↓
+Text Chunking
+        ↓
+Sentence Transformer
+        ↓
+all-MiniLM-L6-v2
+        ↓
+ChromaDB
+        ↓
+Semantic Search
+        ↓
+Top 3 Relevant Chunks
+        ↓
+Gemini Narration
+
+The frontend also displays the retrieved chunks so that users can see the knowledge used by the system.
+Module 6 — LangGraph Orchestrator
+The orchestrator coordinates the complete TwinLife workflow.
+A typical flow is:
+User Query
+    ↓
+Query Classification / Routing
+    ↓
+Health Assessment
+    ↓
+Finance Assessment
+    ↓
+Insurance Assessment
+    ↓
+RAG Retrieval
+    ↓
+Treatment Simulation (when required)
+    ↓
+AI Narration
+    ↓
+Final Response
+
+The orchestrator connects the individual modules into one end-to-end pipeline.
+Module 7 — AI Narration
+The narration layer converts technical results into understandable explanations.
+It combines:
+- Twin outputs
+- SHAP features
+- RAG chunks
+- Simulation results
+The narration layer is designed to avoid inventing numerical values and to use the actual computed results.
+For treatment simulations, the narration distinguishes between:
+Overall Insurance Adequacy
+
+and
+Specific Treatment Coverage
+
+This prevents the overall insurance ratio from being incorrectly presented as the treatment-specific coverage gap.
+Module 8 — Monitoring
+The monitoring module uses APScheduler for scheduled checks.
+Monitoring can evaluate changes in:
+- Health score
+- DTI ratio
+- Savings rate
+- Insurance score
+- Insurance rider gaps
+Snapshots and notification-related data are handled through the project's monitoring implementation.
+Module 9 — Recommendation Engines
+The recommendation module contains rule-based recommendation and simulation engines.
+Examples include:
+Investment Recommendation
+Uses financial conditions such as:
+- Emergency fund
+- Financial stability
+- Age
+Purchase Impact Simulation
+Analyzes:
+- DTI impact
+- Savings time
+- Emergency fund impact
+Lifestyle Impact Simulation
+Evaluates potential effects of lifestyle changes on health outcomes.
+Technology Stack
+Frontend
+- React
+- Vite
+- HTML
+- CSS
+- JavaScript
+Backend
+- Python
+- FastAPI
+- Uvicorn
+- REST APIs
+AI / ML
+- Scikit-learn
+- Random Forest
+- SHAP
+- Google Gemini API
+- LangGraph
+- Agentic AI
+- Function Calling
+RAG & Knowledge
+- ChromaDB
+- Sentence Transformers
+- all-MiniLM-L6-v2
+- Guideline documents
+Monitoring
+- APScheduler
+Data Processing
+- Pandas
+- NumPy
+Installation & Setup
+1. Clone the Repository
 git clone https://github.com/Vajra-Chaitanya/Twin-Life.git
 cd Twin-Life
 
-# Create conda environment
+2. Create the Conda Environment
 conda create -n twin_life python=3.12 -y
 conda activate twin_life
 
-# Install dependencies
+3. Install Python Dependencies
 pip install -r requirements.txt
-```
 
-### 2. Configure Gemini API Key
-Obtain a free API Key from [Google AI Studio](https://aistudio.google.com/apikey). Create or open the `.env` file in the project root:
+4. Install Frontend Dependencies
+cd frontend
+npm install
 
-```env
-GEMINI_API_KEY=AIzaSy...your_api_key_here...
-```
+Return to the project root:
+cd ..
 
----
+Environment Variables
+Create a .env file in the project root.
+GEMINI_API_KEY=your_gemini_api_key_here
 
-## 🚀 Quick Start & Command Guide
+Never commit your actual API key to GitHub.
+Running the Project
+Start the Backend
+From:
+D:\3\Twin-Life
 
-### Run Module 1 Unit Tests
-```bash
+run:
+conda activate twin_life
+uvicorn main:app --reload
+
+The backend will run at:
+http://127.0.0.1:8000
+
+API documentation is available at:
+http://127.0.0.1:8000/docs
+
+Start the Frontend
+Open another terminal:
+cd frontend
+npm run dev
+
+The Vite development server will normally run at:
+http://localhost:5173
+
+API Endpoints
+Root
+GET /
+
+Returns:
+{
+  "message": "TwinLife AI API is running"
+}
+
+Query
+POST /query
+
+Example:
+{
+  "query": "What is my health status?"
+}
+
+Affordability
+GET /affordability/{cost}
+
+Example:
+GET /affordability/500000
+
+Insurance Coverage
+GET /coverage/{cost}
+
+Example:
+GET /coverage/500000
+
+Recommendations
+GET /recommendations
+
+Monitoring
+GET /monitor
+
+Example Queries
+Health
+What is my health status?
+
+What is my cardiovascular risk?
+
+What is my diabetes risk?
+
+Finance
+How is my financial situation?
+
+Can I afford a Rs.5 lakh treatment?
+
+Insurance
+What is my insurance coverage?
+
+Is my insurance adequate?
+
+Cross-Domain
+Can I afford a Rs.5 lakh surgery?
+
+This type of query can combine:
+Health
++
+Finance
++
+Insurance
++
+RAG
++
+Autonomous Simulation
++
+AI Narration
+
+Project Structure
+Twin-Life/
+│
+├── frontend/
+│   ├── src/
+│   ├── public/
+│   ├── App.jsx
+│   ├── App.css
+│   ├── package.json
+│   └── vite.config.js
+│
+├── src/
+│   ├── __init__.py
+│   └── services/
+│       ├── __init__.py
+│       └── twinlife_service.py
+│
+├── data/
+│   ├── cardio_train.csv
+│   ├── diabetes_prediction_dataset.csv
+│   ├── chroma_db/
+│   └── ...
+│
+├── models/
+│   ├── cardio_model.pkl
+│   └── diabetes_model.pkl
+│
+├── health_twin.py
+├── finance_twin.py
+├── insurance_twin.py
+├── combined_simulator.py
+├── rag_agent.py
+├── orchestrator.py
+├── narration_agent.py
+├── monitoring_agent.py
+├── recommendation_engines.py
+├── main.py
+├── requirements.txt
+├── README.md
+└── CHANGES.md
+
+Testing
+Formula Tests
 python -m pytest test_formulas.py
-```
 
-### Train Machine Learning Models (Module 2)
-```bash
-python train_cardio_model.py
-python train_diabetes_model.py
-```
+Full Test Suite
+python -m pytest
 
-### Evaluate Digital Twins (Module 3)
-```bash
+Individual Module Tests
 python health_twin.py
 python finance_twin.py
 python insurance_twin.py
-```
-
-### Run Autonomous Treatment Advisor (Module 4)
-```bash
-python test_combined_simulator.py
-```
-
-### Build & Query RAG Pipeline (Module 5)
-```bash
 python rag_agent.py
-```
-
-### Test Orchestrator Routing (Module 6)
-```bash
 python orchestrator.py
-```
-
-### Generate AI Narrations (Module 7)
-```bash
-python narration_agent.py
-```
-
-### Run Monitoring Agent Check (Module 8)
-```bash
 python monitoring_agent.py
-```
-
-### Test Recommendation Engines (Module 9)
-```bash
 python recommendation_engines.py
-```
 
----
+Backend Smoke Test
+Start the backend:
+uvicorn main:app --reload
 
-## 🤖 Autonomous Agent Workflow
+Then test:
+python -c "import urllib.request; print(urllib.request.urlopen('http://127.0.0.1:8000/').read().decode())"
 
-When evaluating a treatment plan cost (e.g. ₹5,00,000), the Gemini agent reasons step-by-step without hardcoded rules:
+Expected:
+{"message":"TwinLife AI API is running"}
 
-```
-[Agent Initiated] → Prompt: Evaluate ₹5,00,000 Cardio Treatment Plan
+Frontend Improvements
+The current frontend includes several validation and visualization improvements.
+Health Dashboard
+Displays:
+- Health score
+- BMI
+- BMI category
+- Blood pressure
+- BP category
+- HbA1c
+- Blood glucose
+- Cardiovascular risk
+- Diabetes risk
+- Smoking
+- Physical activity
+- SHAP factors
+Finance Dashboard
+Displays:
+- Financial stability score
+- Monthly income
+- Monthly expenses
+- EMIs
+- Disposable income
+- DTI
+- Savings rate
+- Emergency fund
+- Monthly financial breakdown
+Insurance Dashboard
+Displays:
+- Insurance adequacy score
+- Sum insured
+- Annual premium
+- Annual income
+- Coverage ratio
+- Premium ratio
+- Rider gaps
+Treatment Simulation
+Displays:
+- Treatment cost
+- Insurance covered amount
+- Coverage gap
+- Self-funding status
+- Affordability score
+- Health risk
+- Urgency
+- Agent recommendation
+RAG Transparency
+Displays:
+Guidelines Used
+        ↓
+Retrieved Knowledge
+        ↓
+Top 3 Relevant Guideline Chunks
 
-  ├── Call Tool 1: get_health_context("cardio") → { risk_level: "High", urgency: "Urgent" }
-  ├── Call Tool 2: check_affordability(500000) → { affordable: false, score: 0.45 }
-  ├── Call Tool 3: check_insurance_coverage(500000) → { covered_amount: 300000, gap: 200000 }
-  ├── Call Tool 4: get_cheaper_alternative("cardio", 500000) → { new_cost: 200000, tier: "Moderate" }
-  └── Call Tool 5: check_insurance_coverage(200000) → { covered_amount: 200000, gap: 0 }
+Loading State
+The interface displays:
+Analyzing your digital twin...
 
-[Agent Synthesis] → Generates detailed recommendation explaining optimal insurance & self-funding path.
-```
+Health
+Finance
+Insurance
+RAG
+AI Analysis
 
----
-
-## 📚 RAG Pipeline
-
-The RAG system indexes 5 authoritative guideline documents into ChromaDB:
-
-| Document | Source | Topics Covered |
-|----------|--------|---------------|
-| `cardiovascular_guidelines.txt` | AHA/ACC 2019 | BP staging, cholesterol, Framingham risk, lifestyle |
-| `diabetes_management_guidelines.txt` | ADA 2024 | Glucose classification, HbA1c targets, pharmacology |
-| `financial_planning_guidelines.txt` | RBI/SEBI | DTI management, savings benchmarks, investment allocation |
-| `insurance_planning_guidelines.txt` | IRDAI | Sum insured adequacy, premium ratios, rider analysis |
-| `general_wellness_guidelines.txt` | WHO/ICMR | BMI, physical activity, nutrition, sleep, screening |
-
-Each query retrieves the top-3 most semantically relevant chunks using cosine similarity over `all-MiniLM-L6-v2` embeddings.
-
----
-
-## 🔀 Orchestrator Routing
-
-The LangGraph orchestrator uses two-step routing:
-
-| Query Example | Routed To | Mode |
-|--------------|-----------|------|
-| "What is my blood pressure?" | Health | Single-domain |
-| "Am I saving enough?" | Finance | Single-domain |
-| "How much is my coverage?" | Insurance | Single-domain |
-| "Can I afford ₹5L surgery?" | Health + Finance + Insurance | Cross-domain + Simulate |
-| "Treatment for diabetes Rs.3L" | Health + Finance + Insurance | Cross-domain + Simulate |
-
----
-
-## 🧮 Health Score Calculation
-
-The `overall_health_score` (0-100) in `HealthTwin` is calculated using a 5-component weighted model:
-
-$$\text{Overall Score} = 0.25(\text{BMI Score}) + 0.25(\text{BP Score}) + 0.25(\text{Cardio Score}) + 0.15(\text{Diabetes Score}) + 0.10(\text{Framingham Score})$$
-
----
-
-## 📜 License & Disclaimer
-
-This software is developed for academic and demonstration purposes only. All financial figures, insurance coverage rules, and health estimates do not constitute licensed medical or financial advice.
-
-Distributed under the MIT License. See `LICENSE` for more information.
+Error Handling
+The frontend handles backend connection failures and displays a clear error message instead of silently failing.
+Current Limitations
+- User profile persistence is not currently implemented.
+- The current frontend sends profile information, but the backend request model currently focuses on the query field; full per-request profile propagation should be completed before treating custom profiles as fully persistent backend state.
+- The application is currently intended for local development/demo usage.
+- Medical and financial outputs are advisory and should not replace qualified professional advice.
+- RAG quality depends on the documents available in the local knowledge base.
+- Model predictions depend on the training datasets and their limitations.
+Future Enhancements
+Potential future improvements include:
+- Persistent user profiles
+- Database-backed user management
+- Authentication
+- Historical assessment tracking
+- More advanced visualization
+- Deployment to cloud infrastructure
+- More healthcare datasets
+- More financial planning scenarios
+- Additional insurance products
+- Real-time monitoring notifications
+- Mobile application
+- Voice interaction
+- External health/wearable integrations
+Disclaimer
+TwinLife AI is an educational and research-oriented project.
+The health information, risk predictions, financial calculations, insurance analysis, and AI-generated recommendations provided by the system are intended for informational purposes only.
+They should not be considered a substitute for advice from qualified medical, financial, insurance, or other professional advisors.

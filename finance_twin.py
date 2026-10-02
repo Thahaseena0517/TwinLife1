@@ -156,3 +156,8 @@ if __name__ == "__main__":
         aff = twin.affordability_for(500000)
         print(f"  Affordability for 500,000 (12 months): {aff}")
         print()
+
+
+
+
+

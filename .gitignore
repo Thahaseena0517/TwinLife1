@@ -1,18 +1,72 @@
-# Environment variables (contains API keys)
-.env
-
+# ==============================
 # Python
+# ==============================
 __pycache__/
-*.pyc
+*.py[cod]
 *.pyo
+*.pyd
 
-# Models (large binary files)
-models/*.pkl
+# ==============================
+# Virtual Environments
+# ==============================
+.venv/
+venv/
+env/
 
+# ==============================
+# Environment Variables / Secrets
+# ==============================
+.env
+.env.*
+!.env.example
+
+# ==============================
+# Jupyter
+# ==============================
+.ipynb_checkpoints/
+
+# ==============================
+# ML Generated Files
+# ==============================
+# ML Generated Files
+*.joblib
+
+# ==============================
+# RAG Database
+# ==============================
+data/chroma_db/
+
+# ==============================
+# Runtime Generated Data
+# ==============================
+data/notifications/
+data/snapshots/
+
+# ==============================
+# Logs
+# ==============================
+*.log
+
+# ==============================
+# Node / React
+# ==============================
+frontend/node_modules/
+frontend/dist/
+
+# ==============================
+# OS
+# ==============================
+.DS_Store
+Thumbs.db
+
+# ==============================
 # IDE
+# ==============================
 .vscode/
 .idea/
 
-# OS
-Thumbs.db
-.DS_Store
+# ==============================
+# Temporary Files
+# ==============================
+*.tmp
+*.temp

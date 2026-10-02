@@ -1,5 +1,6 @@
 """
 Module 7 -- narration_agent.py
+
 Narration layer for TwinLife AI.
 
 Uses the Gemini API to generate warm, plain-language explanations that
@@ -7,6 +8,7 @@ combine computed scores, SHAP feature contributions, and RAG guideline
 chunks. Also generates ranked what-if scenario comparisons.
 
 Usage:
+
     explanation = generate_explanation(twin_outputs, shap_features, rag_chunks)
     whatif_text = generate_ranked_whatifs(scenarios)
 """
@@ -27,8 +29,9 @@ warnings.filterwarnings("ignore", category=UserWarning)
 
 
 # ---------------------------------------------------------------------------
-#  GEMINI CLIENT HELPER
+# GEMINI CLIENT HELPER
 # ---------------------------------------------------------------------------
+
 def _get_gemini_client() -> genai.Client:
     """Create a Gemini API client from the environment variable."""
     api_key = os.environ.get("GEMINI_API_KEY", "")
@@ -50,11 +53,11 @@ def _call_gemini(
     """Call Gemini API with automatic retry on rate-limit errors.
 
     Args:
-        client:        Gemini API client.
+        client: Gemini API client.
         system_prompt: System instruction for the model.
-        user_prompt:   User message content.
-        model:         Model name to use.
-        max_retries:   Maximum number of retry attempts.
+        user_prompt: User message content.
+        model: Model name to use.
+        max_retries: Maximum number of retry attempts.
 
     Returns:
         Generated text response.
@@ -78,18 +81,23 @@ def _call_gemini(
             return response.candidates[0].content.parts[0].text.strip()
         except Exception as e:
             error_str = str(e)
-            if ("429" in error_str or "RESOURCE_EXHAUSTED" in error_str) and attempt < max_retries:
+            if (
+                "429" in error_str or "RESOURCE_EXHAUSTED" in error_str
+            ) and attempt < max_retries:
                 wait = 30 * (attempt + 1)
-                print(f"    [Rate limited — waiting {wait}s before retry "
-                      f"{attempt + 1}/{max_retries}...]")
+                print(
+                    f"    [Rate limited — waiting {wait}s before retry "
+                    f"{attempt + 1}/{max_retries}...]"
+                )
                 time.sleep(wait)
             else:
                 raise
 
 
 # ---------------------------------------------------------------------------
-#  GENERATE EXPLANATION
+# GENERATE EXPLANATION
 # ---------------------------------------------------------------------------
+
 def generate_explanation(
     twin_outputs: dict,
     shap_features: list[dict],
@@ -102,7 +110,7 @@ def generate_explanation(
                       "simulation" — each containing the respective profile.
         shap_features: List of SHAP feature dicts from HealthTwin:
                        [{"feature": str, "impact": float, "model": str}, ...]
-        rag_chunks:   List of retrieved guideline text chunks from RAGAgent.
+        rag_chunks: List of retrieved guideline text chunks from RAGAgent.
 
     Returns:
         A warm, cited, plain-language explanation string.
@@ -125,7 +133,11 @@ def generate_explanation(
         "5. End with 1-2 actionable next steps the user can take.\n"
         "6. Include a brief disclaimer that this is illustrative guidance, "
         "not licensed medical or financial advice.\n"
-        "7. Keep the response under 300 words."
+        "7. Keep the response under 300 words.\n"
+        "8. When discussing a specific treatment simulation, use the "
+        "treatment cost, covered amount, and coverage gap from the simulation "
+        "tool results. Do NOT use the overall insurance coverage ratio to "
+        "describe the coverage gap for that specific treatment.\n"
     )
 
     # Build the user prompt with all available data
@@ -137,9 +149,11 @@ def generate_explanation(
             "=== HEALTH PROFILE ===\n"
             f"BMI: {hp.get('bmi')} ({hp.get('obesity_class')})\n"
             f"Blood Pressure: {hp.get('hypertension_stage')}\n"
-            f"Cardiovascular Risk: {hp.get('cardio_risk', {}).get('probability', 'N/A')} "
+            f"Cardiovascular Risk: "
+            f"{hp.get('cardio_risk', {}).get('probability', 'N/A')} "
             f"({hp.get('cardio_risk', {}).get('label', 'N/A')})\n"
-            f"Diabetes Risk: {hp.get('diabetes_risk', {}).get('probability', 'N/A')} "
+            f"Diabetes Risk: "
+            f"{hp.get('diabetes_risk', {}).get('probability', 'N/A')} "
             f"({hp.get('diabetes_risk', {}).get('label', 'N/A')})\n"
             f"Overall Health Score: {hp.get('overall_health_score')}/100"
         )
@@ -151,38 +165,152 @@ def generate_explanation(
             f"DTI Ratio: {fp.get('dti_ratio')}\n"
             f"Savings Rate: {fp.get('savings_rate')}\n"
             f"Emergency Fund: {fp.get('emergency_fund_months')} months\n"
-            f"Financial Stability Score: {fp.get('financial_stability_score')}/100"
+            f"Financial Stability Score: "
+            f"{fp.get('financial_stability_score')}/100"
         )
 
     if "insurance" in twin_outputs:
         ip = twin_outputs["insurance"]
         sections.append(
             "=== INSURANCE PROFILE ===\n"
-            f"Estimated Future Cost: Rs.{ip.get('estimated_future_cost', 0):,.0f}\n"
+            f"Estimated Future Cost: "
+            f"Rs.{ip.get('estimated_future_cost', 0):,.0f}\n"
             f"Coverage Ratio: {ip.get('coverage_adequacy_ratio')}\n"
             f"Premium Ratio: {ip.get('premium_affordability_ratio')}\n"
-            f"Rider Gaps: {ip.get('rider_analysis', {}).get('gaps', [])}\n"
+            f"Rider Gaps: "
+            f"{ip.get('rider_analysis', {}).get('gaps', [])}\n"
             f"Insurance Score: {ip.get('insurance_adequacy_score')}/100"
         )
 
     if "simulation" in twin_outputs and twin_outputs["simulation"]:
         sim = twin_outputs["simulation"]
+        simulation_lines = ["=== TREATMENT SIMULATION ==="]
+
+        tool_trace = sim.get("tool_trace", [])
+
+        for tool in tool_trace:
+            name = tool.get("tool")
+            result = tool.get("result", {})
+
+            if name == "check_affordability":
+                simulation_lines.append(
+                    f"Treatment Cost: "
+                    f"Rs.{result.get('cost', tool.get('input', {}).get('cost', 0)):,.0f}"
+                )
+
+                simulation_lines.append(
+                    f"Treatment Affordable From Disposable Income: "
+                    f"{result.get('affordable')}"
+                )
+
+                simulation_lines.append(
+                    f"Affordability Score: {result.get('score')}"
+                )
+
+            elif name == "check_insurance_coverage":
+                simulation_lines.append(
+                    f"Specific Treatment Covered Amount: "
+                    f"Rs.{result.get('covered_amount', 0):,.0f}"
+                )
+
+                simulation_lines.append(
+                    f"Specific Treatment Coverage Gap: "
+                    f"Rs.{result.get('gap', 0):,.0f}"
+                )
+
+            elif name == "get_health_context":
+                simulation_lines.append(
+                    f"Health Risk Level: {result.get('risk_level')}"
+                )
+
+                simulation_lines.append(
+                    f"Clinical Urgency: {result.get('urgency')}"
+                )
+
         if "recommendation" in sim:
-            sections.append(
-                "=== TREATMENT SIMULATION ===\n"
+            simulation_lines.append(
                 f"Agent Recommendation:\n{sim['recommendation'][:500]}"
             )
 
+        sections.append("\n".join(simulation_lines))
+
+    # if "simulation" in twin_outputs and twin_outputs["simulation"]:
+    #     sim = twin_outputs["simulation"]
+    #     if "recommendation" in sim:
+    #         sections.append(
+    #             "=== TREATMENT SIMULATION ===\n"
+    #             f"Agent Recommendation:\n{sim['recommendation'][:500]}"
+    #         )
+
+    if "simulation" in twin_outputs and twin_outputs["simulation"]:
+        sim = twin_outputs["simulation"]
+        simulation_lines = ["=== TREATMENT SIMULATION ==="]
+
+        tool_trace = sim.get("tool_trace", [])
+
+        for tool in tool_trace:
+            name = tool.get("tool")
+            result = tool.get("result", {})
+
+            if name == "check_affordability":
+                simulation_lines.append(
+                    f"Treatment Cost: "
+                    f"Rs.{result.get('cost', tool.get('input', {}).get('cost', 0)):,.0f}"
+                )
+
+                simulation_lines.append(
+                    f"Treatment Affordable From Disposable Income: "
+                    f"{result.get('affordable')}"
+                )
+
+                simulation_lines.append(
+                    f"Affordability Score: {result.get('score')}"
+                )
+
+            elif name == "check_insurance_coverage":
+                simulation_lines.append(
+                    f"Specific Treatment Covered Amount: "
+                    f"Rs.{result.get('covered_amount', 0):,.0f}"
+                )
+
+                simulation_lines.append(
+                    f"Specific Treatment Coverage Gap: "
+                    f"Rs.{result.get('gap', 0):,.0f}"
+                )
+
+            elif name == "get_health_context":
+                simulation_lines.append(
+                    f"Health Risk Level: {result.get('risk_level')}"
+                )
+
+                simulation_lines.append(
+                    f"Clinical Urgency: {result.get('urgency')}"
+                )
+
+        if "recommendation" in sim:
+            simulation_lines.append(
+                f"Agent Recommendation:\n{sim['recommendation'][:500]}"
+            )
+
+        sections.append("\n".join(simulation_lines))
+
     if shap_features:
         shap_text = "\n".join(
-            f"  - {sf['feature']}: impact {sf['impact']:+.4f} ({sf['model']} model)"
+            f"  - {sf['feature']}: impact {sf['impact']:+.4f} "
+            f"({sf['model']} model)"
             for sf in shap_features[:5]
         )
-        sections.append(f"=== KEY FACTORS (SHAP Analysis) ===\n{shap_text}")
+        sections.append(
+            f"=== KEY FACTORS (SHAP Analysis) ===\n{shap_text}"
+        )
 
     if rag_chunks:
-        rag_text = "\n---\n".join(chunk[:500] for chunk in rag_chunks[:3])
-        sections.append(f"=== GUIDELINE REFERENCES ===\n{rag_text}")
+        rag_text = "\n---\n".join(
+            chunk[:500] for chunk in rag_chunks[:3]
+        )
+        sections.append(
+            f"=== GUIDELINE REFERENCES ===\n{rag_text}"
+        )
 
     user_prompt = (
         "Based on the following data, write a personalized health and "
@@ -194,8 +322,9 @@ def generate_explanation(
 
 
 # ---------------------------------------------------------------------------
-#  GENERATE RANKED WHAT-IFS
+# GENERATE RANKED WHAT-IFS
 # ---------------------------------------------------------------------------
+
 def generate_ranked_whatifs(scenarios: list[dict]) -> str:
     """Rank and narrate 3-4 candidate what-if scenarios.
 
@@ -222,12 +351,19 @@ def generate_ranked_whatifs(scenarios: list[dict]) -> str:
         risk_red = s.get("risk_reduction", 0)
         cost = max(s.get("cost", 1), 1)
         ins_fit = s.get("insurance_fit", 0)
+
         s["score"] = round(
-            risk_red * 0.5 + (1.0 / cost) * 0.3 * 100000 + ins_fit * 0.2,
+            risk_red * 0.5
+            + (1.0 / cost) * 0.3 * 100000
+            + ins_fit * 0.2,
             4,
         )
 
-    ranked = sorted(scenarios, key=lambda s: s["score"], reverse=True)
+    ranked = sorted(
+        scenarios,
+        key=lambda s: s["score"],
+        reverse=True,
+    )
 
     client = _get_gemini_client()
 
@@ -239,7 +375,7 @@ def generate_ranked_whatifs(scenarios: list[dict]) -> str:
     )
 
     scenario_text = "\n".join(
-        f"{i+1}. {s['name']} (Score: {s['score']:.2f}) — "
+        f"{i + 1}. {s['name']} (Score: {s['score']:.2f}) — "
         f"Risk Reduction: {s.get('risk_reduction', 0):.0%}, "
         f"Cost: Rs.{s.get('cost', 0):,.0f}, "
         f"Insurance Fit: {s.get('insurance_fit', 0):.0%}"
@@ -255,8 +391,9 @@ def generate_ranked_whatifs(scenarios: list[dict]) -> str:
 
 
 # ======================================================================
-#  STANDALONE VERIFICATION (python narration_agent.py)
+# STANDALONE VERIFICATION (python narration_agent.py)
 # ======================================================================
+
 if __name__ == "__main__":
     print("=" * 60)
     print("  Module 7: Narration Agent — Explanation Test")
@@ -268,8 +405,14 @@ if __name__ == "__main__":
             "bmi": 26.3,
             "obesity_class": "Overweight (Pre-obese)",
             "hypertension_stage": "Stage 1",
-            "cardio_risk": {"probability": 0.42, "label": "Elevated"},
-            "diabetes_risk": {"probability": 0.15, "label": "Low"},
+            "cardio_risk": {
+                "probability": 0.42,
+                "label": "Elevated",
+            },
+            "diabetes_risk": {
+                "probability": 0.15,
+                "label": "Low",
+            },
             "overall_health_score": 58,
         },
         "finance": {
@@ -281,9 +424,21 @@ if __name__ == "__main__":
     }
 
     sample_shap = [
-        {"feature": "ap_hi", "impact": 0.0823, "model": "cardio"},
-        {"feature": "bmi", "impact": 0.0615, "model": "cardio"},
-        {"feature": "age_years", "impact": 0.0512, "model": "cardio"},
+        {
+            "feature": "ap_hi",
+            "impact": 0.0823,
+            "model": "cardio",
+        },
+        {
+            "feature": "bmi",
+            "impact": 0.0615,
+            "model": "cardio",
+        },
+        {
+            "feature": "age_years",
+            "impact": 0.0512,
+            "model": "cardio",
+        },
     ]
 
     sample_rag = [
@@ -294,9 +449,13 @@ if __name__ == "__main__":
     ]
 
     print("\n[1] Generating personalized explanation...")
+
     explanation = generate_explanation(
-        sample_twin_outputs, sample_shap, sample_rag,
+        sample_twin_outputs,
+        sample_shap,
+        sample_rag,
     )
+
     print(f"\n{explanation}")
 
     # Test what-if ranking
@@ -326,5 +485,7 @@ if __name__ == "__main__":
     ]
 
     print("\n[2] Generating ranked what-if narration...")
+
     whatif_text = generate_ranked_whatifs(sample_scenarios)
+
     print(f"\n{whatif_text}")
