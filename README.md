@@ -598,11 +598,10 @@ pip install -r requirements.txt
 ```
 
 ### 4️⃣ Install frontend dependencies
-
+new anaconda command prompt open
 ```bash
 cd frontend
 npm install
-cd ..
 ```
 
 ---
